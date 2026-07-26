@@ -155,12 +155,21 @@ next time, in this repo or any other.
    GitHub Pages' control either way). `build_type: workflow` is
    already set as a side effect of testing this — needed anyway for
    the MkDocs migration.
-4. ~~**Skill placement**~~ — **Resolved (owner, 2026-07-26): both** —
-   master copy in `~/work/my-agent-task-register/skills/mkdocs-site/`
-   (that repo's documented pattern: master copies live there, edited
-   once), symlinked to `~/.claude/skills/mkdocs-site/` for global
-   availability, matching the existing `job-application`/
-   `resume-variant`/`linkedin-content` setup exactly (frontmatter:
-   `name`, `owner: Senthilnathan`, `github: https://github.com/senthilsweb`,
-   `description`, `user-invocable: true`, per
-   `my-agent-task-register/CLAUDE.md`'s skill-file conventions).
+4. ~~**Skill placement**~~ — **Resolved (owner, 2026-07-26): global
+   and repo-level, all three copies now in place:**
+   - **Master**: `~/work/my-agent-task-register/skills/mkdocs-site/
+     SKILL.md` (that repo's documented pattern: master copies live
+     there, edited once), matching the existing `job-application`/
+     `resume-variant`/`linkedin-content` setup exactly (frontmatter:
+     `name`, `owner: Senthilnathan`, `github:
+     https://github.com/senthilsweb`, `description`, `user-invocable:
+     true`, per `my-agent-task-register/CLAUDE.md`'s conventions).
+   - **Global**: `~/.claude/skills/mkdocs-site` — a symlink to the
+     master, for availability across every repo on this machine.
+   - **Repo-level**: `datagov/.claude/skills/mkdocs-site/SKILL.md` —
+     a real, self-contained **copy** (not a symlink — `datagov` is
+     public, and a symlink into the private `my-agent-task-register`
+     repo wouldn't resolve for anyone else cloning it), so the skill
+     travels with this repo specifically. Initially missed in the
+     first pass (owner caught it: "did you create skill file for this
+     in this repo?", 2026-07-26) and added after.
