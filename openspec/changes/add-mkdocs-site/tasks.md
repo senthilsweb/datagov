@@ -2,16 +2,30 @@
 
 ## Bolt 0 — Inception gate
 
-- [ ] Resolve open question 1 — Deployment vs. CI/CD naming (owner)
-- [ ] Resolve open question 2 — Commands: one page or per-command (owner)
-- [ ] Resolve open question 3 — published URL / `site_url` (owner)
-- [ ] Resolve open question 4 — Skill placement, global vs. local (owner)
-- [ ] Proposal status → **APPROVED**
+- [x] Resolve open question 1 — **resolved (owner, 2026-07-26):**
+      Deployment = docs-publishing page, distinct from CI/CD
+- [x] Resolve open question 2 — **resolved (owner, 2026-07-26):** one
+      Commands reference page, every command explained in full
+- [ ] Resolve open question 3 — published URL. **Investigated, not
+      resolved**: GitHub Pages' custom-domain inheritance is
+      unconditional per account, confirmed no per-repo API override
+      exists; `senthilsweb.github.io/datagov/` is independently live
+      today regardless. Owner to choose how to proceed (see
+      proposal.md's options a/b/c) — this is the only remaining gate
+      item; it blocks Bolt 2/4 (going live) but not Bolt 1 (the skill)
+- [x] Resolve open question 4 — **resolved (owner, 2026-07-26):**
+      master copy in `my-agent-task-register`, symlinked globally
+- [ ] Proposal status → **APPROVED** (pending question 3)
 
-## Bolt 1 — Skill
+## Bolt 1 — Skill ✅ unblocked, proceeding now
 
-- [ ] `~/.claude/skills/mkdocs-site/SKILL.md` per design.md, including
-      the mkdocs.yml/docs.yml templates and the mandatory-page rules
+- [ ] `~/work/my-agent-task-register/skills/mkdocs-site/SKILL.md`
+      (master) per design.md — frontmatter `name`, `owner:
+      Senthilnathan`, `github: https://github.com/senthilsweb`,
+      `description`, `user-invocable: true`; includes the mkdocs.yml/
+      docs.yml templates, mandatory-page rules, and the custom-domain-
+      inheritance finding
+- [ ] `~/.claude/skills/mkdocs-site` symlinked to the master
 - [ ] Dry-run: confirm the skill's frontmatter description actually
       surfaces it for a "set up a docs site" style request
 

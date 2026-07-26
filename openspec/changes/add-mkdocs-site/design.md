@@ -40,6 +40,7 @@ nav:
   - Use Cases: use-cases.md
   - Configuration: configuration.md
   - CI/CD: ci-cd.md
+  - Deployment: deployment.md
   - FAQ: faq.md
 
 markdown_extensions:
@@ -94,9 +95,10 @@ Actions" in the UI) made once this change is approved — not yet done.
 - **`installation.md`** — today's content, restyled (admonition for
   "no final release yet", the same curl one-liner and build-from-source
   paths).
-- **`commands.md`** — today's content, one page (see open question 2),
-  reference-style rather than tutorial-style (that's what Tutorials is
-  for) — signature, flags, exit codes, one example per command.
+- **`commands.md`** — **resolved: one reference page**, every command
+  listed one by one with a full explanation each (signature, every
+  flag, exit codes, a tested example) — reference-depth, not the
+  terser cookbook style Tutorials uses for the same commands.
 - **`tutorials.md`** (new) — end-to-end recipes distinct from Getting
   Started's atomic paths, e.g. "check a dataset for PII before sharing
   it" (inspect → pii scan, chained), "compare two SQL dialects for a
@@ -120,6 +122,12 @@ Actions" in the UI) made once this change is approved — not yet done.
   proving the release pipeline (2026-07-26) — the style guide asks for
   "failures seen so far" in operational pages, and this project has a
   concrete, instructive one.
+- **`deployment.md`** (new — **resolved meaning: docs publishing**,
+  distinct from `ci-cd.md`) — how *this documentation site* itself
+  gets built and deployed: `mkdocs build --strict`, the
+  `actions/upload-pages-artifact` → `actions/deploy-pages` flow,
+  where GitHub Pages settings live, and how to test a page locally
+  (`mkdocs serve`) before pushing.
 - **`faq.md`** (new) — seeded from real questions already answered in
   this project's own history: why Apache 2.0 not MIT (links the
   inception-gate Correction), why `sqlglot-rust` not `sqlparser-rs`
@@ -129,29 +137,49 @@ Actions" in the UI) made once this change is approved — not yet done.
   note). Each answer short, linking to the spec/design doc that
   recorded the full reasoning — never duplicating it.
 
-## Skill design: `~/.claude/skills/mkdocs-site/SKILL.md`
+## Skill: master in `my-agent-task-register`, symlinked globally
 
-Frontmatter `description` triggers on: building or restructuring a
-docs site, "mkdocs", "docs site", "publish docs", "GitHub Pages" for
-markdown documentation (distinct from this session's Jekyll attempt,
-which existed only because this skill didn't yet exist).
+**Resolved (owner, 2026-07-26):** follows the exact existing pattern
+documented in `my-agent-task-register/CLAUDE.md` and `README.md` —
+master copy lives in the register repo, `~/.claude/skills/` holds a
+symlink, never a second copy to drift out of sync.
 
-Body (target: page-set decision rules + templates, not prose duplicate
-of the style guide):
+- **Master**: `~/work/my-agent-task-register/skills/mkdocs-site/SKILL.md`
+- **Symlink**: `~/.claude/skills/mkdocs-site` →
+  `~/work/my-agent-task-register/skills/mkdocs-site`
+  (`ln -s`, matching the `README.md` "Install the skills into Claude
+  Code" section's existing entries for `job-application`,
+  `resume-variant`, `linkedin-content`)
+- **Frontmatter** (per `CLAUDE.md`'s skill-file conventions): `name:
+  mkdocs-site`, `owner: Senthilnathan`, `github:
+  https://github.com/senthilsweb`, `description` (a when-to-trigger
+  sentence — building/restructuring a docs site, "mkdocs", "docs
+  site", "publish docs", "GitHub Pages" for markdown documentation),
+  `user-invocable: true`.
+
+Body (target: page-set decision rules + templates, not a prose
+duplicate of the style guide — same "link, don't copy" principle the
+style guide itself states):
 1. When to use / when not to use (a project needs *any* published
    docs site; not for single-file READMEs).
 2. The mandatory-page rules (FAQ always; Configuration if a config
-   file/precedence chain exists; CI/CD if 2+ workflows exist; Runbook
-   if anything runs on a schedule/automatically) and the flexible ones
-   (Getting Started, Installation, Commands/Surfaces, Tutorials, Use
-   Cases — adapt names to the product's shape: a CLI gets Commands, a
-   service gets Surfaces/API).
+   file/precedence chain exists; CI/CD if 2+ workflows exist;
+   Deployment if the docs site's own publish mechanism is non-obvious;
+   Runbook if anything runs on a schedule/automatically) and the
+   flexible ones (Getting Started, Installation, Commands/Surfaces,
+   Tutorials, Use Cases — adapt names to the product's shape: a CLI
+   gets Commands, a service gets Surfaces/API).
 3. The `mkdocs.yml` and `docs.yml` templates verbatim (from this
-   design doc), with a note on the two fields that change per repo
-   (`site_name`, `repo_url`/`repo_name`, `nav`).
-4. Pages setup steps (source = GitHub Actions).
+   design doc), with a note on the fields that change per repo
+   (`site_name`, `site_url`, `repo_url`/`repo_name`, `nav`).
+4. Pages setup steps (source = GitHub Actions) **plus the custom-
+   domain-inheritance finding from this change** (§ open question 3):
+   if the account has a user/org-level custom domain, every project
+   site is also served under it automatically, with no supported
+   per-repo opt-out — flag this to the owner before publishing a new
+   site rather than assuming the plain `github.io` URL is exclusive.
 5. A link to the canonical style guide
    (https://senthilsweb.github.io/ai-agents/style-guide/, and the
    local path `ai-agents/agents/job-scout/docs/style-guide.md` as a
    fallback) as the single source of truth for voice/writing rules —
-   not duplicated here, per the style guide's own stated principle.
+   not duplicated here.

@@ -1,7 +1,11 @@
 # Proposal: `add-mkdocs-site` — replace the ad hoc docs site with the shared MkDocs pattern
 
-> Status: **PROPOSED** — 2026-07-26. Awaiting owner resolution of the
-> open questions below, then status → APPROVED.
+> Status: **PROPOSED, 3 of 4 open questions resolved** — 2026-07-26.
+> Questions 1, 2, 4 resolved by owner; question 3 (published URL) hit
+> a genuine GitHub Pages platform constraint during investigation —
+> see its entry below for the finding and the owner's pending call.
+> Bolt 1 (the skill) proceeds in parallel since it doesn't depend on
+> the answer; the site migration itself waits for it.
 > Owner: @senthilsweb
 > Source: owner request ("I need it in mkdocs which is what we have
 > been following... standard navigation system... skill file for docs
@@ -122,27 +126,50 @@ next time, in this repo or any other.
 
 ## Open questions for the inception gate
 
-1. **What does "Deployment" mean for a CLI tool?** No running service
-   to deploy. Candidates: (a) using `datagov` inside CI/CD pipelines
-   (GitHub Actions example, exit-code gating on `pii scan --fail-on`)
-   — this is what the style guide's "CI/CD" page already covers, so
-   "Deployment" and "CI/CD" would just be the same page under one of
-   the two names; (b) binary distribution/installation across
-   environments (Docker, air-gapped, package managers) — mostly
-   overlaps with Installation; (c) something else you have in mind.
-   Recommended: fold into one "CI/CD" page (style guide's exact name)
-   unless you mean something distinct from both (a) and (b).
-2. **Commands: one page or one-per-command?** Recommended: one page
-   while the surface is small (5 commands today); revisit once
-   `pii scan`/`report` land and it gets crowded (~8 commands).
-3. **Published URL**: keep `www.senthilsweb.com/datagov/` (confirmed
-   this is what `agent-job-matcher` and `ai-agents` actually serve
-   today too, despite their own `mkdocs.yml` `site_url` fields still
-   saying `senthilsweb.github.io/...` — likely stale since the custom
-   domain was added after those sites were first set up), or force
-   plain `senthilsweb.github.io/datagov` only? Recommended: keep the
-   custom domain (matches real sibling behavior) and set `site_url`
-   correctly this time rather than copying the stale value.
-4. **Skill placement**: global (`~/.claude/skills/mkdocs-site/`, my
-   recommendation, since the pattern already spans 3 repos) or
-   datagov-repo-local (`.claude/skills/`)? Recommended: global.
+1. ~~**What does "Deployment" mean for a CLI tool?**~~ — **Resolved
+   (owner, 2026-07-26): "docs publish"** — a distinct page documenting
+   how the *documentation site itself* gets built and deployed
+   (`mkdocs build --strict` → `deploy-pages`), separate from the
+   style guide's mandatory "CI/CD" page (which covers the product's
+   own `ci.yml`/`release.yml`). Both pages now in the nav.
+2. ~~**Commands: one page or one-per-command?**~~ — **Resolved
+   (owner, 2026-07-26): one reference page**, listing every command
+   one by one with a full explanation each (reference-depth, not just
+   a terse flag table) — richer than the current site's version.
+3. **Published URL** — **owner (2026-07-26): must NOT be
+   `www.senthilsweb.com/datagov/`**, to avoid an accidental path
+   collision with the main webapp. **Investigated, not yet resolved —
+   a real platform constraint, not a configuration oversight:**
+   - GitHub Pages' custom-domain inheritance (user/org site → every
+     project site) is unconditional and undocumented-as-overridable
+     per project repo. Confirmed empirically: explicitly clearing
+     datagov's `cname` via the Pages API (already `null`) had no
+     effect — `html_url` still reports
+     `http://www.senthilsweb.com/datagov/`.
+   - **However**, `https://senthilsweb.github.io/datagov/` is
+     confirmed **independently live right now** (HTTP 200, same
+     content) — GitHub serves *both* URLs simultaneously; there is no
+     supported way to serve only one.
+   - Options, none of which make the custom-domain URL stop
+     responding: **(a)** proceed anyway — use only the
+     `senthilsweb.github.io/datagov/` URL in all docs/links/READMEs,
+     accept that `www.senthilsweb.com/datagov/` also silently serves
+     the same content (harmless unless the main webapp independently
+     tries to claim that exact path — a question about the main
+     webapp's own routing, not something GitHub Pages can be told to
+     release); **(b)** file a GitHub Support request asking them to
+     manually disable inheritance for this one repo (self-service API/
+     UI does not expose this, per community reports); **(c)** other,
+     if you know something about the main webapp's hosting/DNS setup
+     that changes the calculus. **Awaiting your call** — this is the
+     one open item blocking full approval; Bolt 1 (the skill, which
+     doesn't depend on the answer) is proceeding in parallel.
+4. ~~**Skill placement**~~ — **Resolved (owner, 2026-07-26): both** —
+   master copy in `~/work/my-agent-task-register/skills/mkdocs-site/`
+   (that repo's documented pattern: master copies live there, edited
+   once), symlinked to `~/.claude/skills/mkdocs-site/` for global
+   availability, matching the existing `job-application`/
+   `resume-variant`/`linkedin-content` setup exactly (frontmatter:
+   `name`, `owner: Senthilnathan`, `github: https://github.com/senthilsweb`,
+   `description`, `user-invocable: true`, per
+   `my-agent-task-register/CLAUDE.md`'s skill-file conventions).
