@@ -22,6 +22,15 @@ jobs:
   build:
     name: Build ${{ matrix.artifact }}
     runs-on: ${{ matrix.runner }}
+    # required targets (release-distribution spec: darwin-arm64 +
+    # linux-x86_64) must succeed for the release to proceed; the rest
+    # are best-effort per PRD §29 — continue-on-error so a slow/
+    # unavailable runner (observed: macos-13 queued 50+ min with no
+    # capacity, 2026-07-26) can't block the whole release indefinitely.
+    # timeout-minutes bounds every leg, required or not, so a stuck
+    # queue fails loudly within 20 min instead of hanging forever.
+    timeout-minutes: 20
+    continue-on-error: ${{ !matrix.required }}
     strategy:
       fail-fast: false
       matrix:
@@ -29,18 +38,23 @@ jobs:
           - artifact: datagov-darwin-arm64
             runner: macos-14
             target: aarch64-apple-darwin
+            required: true
           - artifact: datagov-darwin-x86_64
             runner: macos-13
             target: x86_64-apple-darwin
+            required: false
           - artifact: datagov-linux-arm64
             runner: ubuntu-24.04-arm
             target: aarch64-unknown-linux-gnu
+            required: false
           - artifact: datagov-linux-x86_64
             runner: ubuntu-latest
             target: x86_64-unknown-linux-gnu
+            required: true
           - artifact: datagov-windows-x86_64.exe
             runner: windows-latest
             target: x86_64-pc-windows-msvc
+            required: false
     steps:
       - name: Checkout
         uses: actions/checkout@v4
