@@ -187,13 +187,28 @@ fidelity gaps, none affecting the committed corpus).
 - [x] `install.sh` authored ahead of schedule (2026-07-26, owner
       request) — OS/arch detection, latest-or-pinned release
       resolution, checksum-verified download, no-sudo install; see the
-      new `release-distribution` requirement. **Not yet end-to-end
-      verified against a real release** (none published) — this bolt's
-      first task below covers that.
-- [ ] CI release path proven: `v0.1.0-rc` tag → GitHub Release with
-      `datagov-darwin-arm64` + `datagov-linux-x86_64`, SPDX SBOM,
-      SHA-256 checksums (remaining PRD §29 targets best-effort); then
-      run `install.sh` against that real release end-to-end
+      `release-distribution` requirement.
+- [x] CI release path proven ahead of schedule (2026-07-26, owner
+      request) — `v0.1.0-rc.1` through `rc.4` (four iterations; see the
+      dated `fix(ci):` commits on `main` for what each one caught: a
+      `macos-13` runner with no available capacity, then a matrix
+      structural issue where a best-effort leg's expected failure
+      silently skipped the whole release job rather than letting it
+      proceed). `v0.1.0-rc.4` published clean: required targets
+      (`datagov-darwin-arm64`, `datagov-linux-x86_64`) succeeded,
+      `datagov-darwin-x86_64` and `datagov-linux-arm64` (best-effort)
+      succeeded, `datagov-windows-x86_64.exe` (best-effort) timed out
+      without blocking the release, SPDX SBOM + SHA-256 checksums
+      attached, correctly flagged `prerelease: true`. `install.sh
+      DATAGOV_VERSION=v0.1.0-rc.4` verified end-to-end against the live
+      release: checksum-verified download, install, and a working
+      `datagov inspect` against a real fixture, all independent of the
+      dev build. **What's left for this bolt to formally close:** the
+      full PRD §36 demo sequence (needs `pii scan`/`report`, Bolts 5-6),
+      the SOFT startup-time measurement, and the CI-failing-on-PII-
+      threshold demo workflow (acceptance criterion 7) — those still
+      wait on later bolts, this task is not fully done, just started
+      early and substantially de-risked.
 - [ ] Clean-machine eval: binaries run the §36 demo sequence on hosts
       with no toolchains installed
 - [ ] Startup benchmark <150 ms measured and published (SOFT)
