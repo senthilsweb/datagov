@@ -1,0 +1,11 @@
+record_id,ipv4_address,ipv6_address,website_url,ssn,credit_card_number,record_uuid,mac_address,zip_code,notes
+1,192.0.2.1,2001:db8::1,https://example.com/docs,555-01-0001,4111111111111111,3fa85f64-5717-4562-b3fc-2c963f66afa6,02:00:00:00:00:01,12345,Reported via https://example.com/incidents/42 from host 192.0.2.10 during the outage.
+2,192.0.2.2,2001:db8::2,https://example.org/help,555-02-0002,5555555555554444,550e8400-e29b-41d4-a716-446655440000,02:00:00:00:00:02,54321,Backup contact logged with reference https://example.net/ticket/7.
+3,192.0.2.3,2001:db8::3,https://example.net/status,555-03-0003,378282246310005,6ba7b810-9dad-11d1-80b4-00c04fd430c8,0A:1B:2C:3D:4E:5F,10001,No incident reported this cycle.
+4,198.51.100.4,2001:db8:0:1::4,https://example.com/api,555-04-0004,6011111111111117,3fa85f64-5717-4562-b3fc-2c963f66afa6,02:00:00:00:00:04,90210,Escalated to on-call via 192.0.2.20.
+5,198.51.100.5,2001:db8:0:1::5,https://example.org/login,555-05-0005,4111111111111111,550e8400-e29b-41d4-a716-446655440000,02:00:00:00:00:05,30301,Duplicate of ticket seen at https://example.org/ticket/9.
+6,203.0.113.6,2001:db8:1::6,https://example.net/docs,555-06-0006,5555555555554444,6ba7b810-9dad-11d1-80b4-00c04fd430c8,0A:1B:2C:3D:4E:60,60601,Routine maintenance window.
+7,203.0.113.7,2001:db8:1::7,https://example.com/status,555-07-0007,378282246310005,3fa85f64-5717-4562-b3fc-2c963f66afa6,02:00:00:00:00:07,94105,See host 198.51.100.30 in the incident log.
+8,192.0.2.8,2001:db8::8,https://example.org/api,555-08-0008,6011111111111117,550e8400-e29b-41d4-a716-446655440000,02:00:00:00:00:08,73301,Resolved without escalation.
+9,198.51.100.9,2001:db8:0:1::9,https://example.net/help,555-09-0009,4111111111111111,6ba7b810-9dad-11d1-80b4-00c04fd430c8,0A:1B:2C:3D:4E:61,12345,Followed up via https://example.net/ticket/15.
+10,203.0.113.10,2001:db8:1::a,https://example.com/login,555-10-0010,5555555555554444,3fa85f64-5717-4562-b3fc-2c963f66afa6,02:00:00:00:00:0a,54321,Closed after confirmation from host 203.0.113.50.

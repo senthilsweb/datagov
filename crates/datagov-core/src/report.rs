@@ -10,9 +10,11 @@
 //! 3. Defines the `profile` section (PRD §10.2, populated starting
 //!    Bolt 3): `ProfileSection`, `ColumnProfile`, `StringLengthStats`,
 //!    `TopValue`, computed by `datagov_data::profile` via DataFusion
-//!    aggregate SQL. Defines one empty `#[non_exhaustive]` placeholder
-//!    struct per remaining PRD §23 domain key (`PiiSection`,
-//!    `QualitySection`, `SchemaSection`, `LineageSection`,
+//!    aggregate SQL. Defines the `pii` section (PRD §10.8, populated
+//!    starting Bolt 5): `PiiSection`, `PiiFinding`, computed by
+//!    `datagov_pii::scanner`. Defines one empty `#[non_exhaustive]`
+//!    placeholder struct per remaining PRD §23 domain key
+//!    (`QualitySection`, `SchemaSection`, `LineageSection`,
 //!    `PolicySection`, `EvidenceSection`); later bolts flesh these out.
 //! 4. Provides `content_hash_sha256`, a SHA-256 file-hashing helper used
 //!    from Bolt 2 onward to populate `Input::content_hash`.
@@ -305,10 +307,55 @@ pub struct TopValue {
     pub percentage: f64,
 }
 
-empty_section!(
-    /// Placeholder for the `pii` section; populated starting Bolt 5.
-    PiiSection
-);
+/// The `pii` section (PRD §10.8), populated by `datagov pii scan` via
+/// `datagov_pii::scanner`. Replaces the Bolt 1 empty placeholder.
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+pub struct PiiSection {
+    /// Number of columns actually scanned (all columns, or the
+    /// `--field`-restricted subset).
+    pub scanned_columns: u32,
+    /// Number of rows in the scanned table (the full dataset, or the
+    /// `--sample`-bounded subset).
+    pub scanned_rows: u64,
+    /// `Some(n)` when `--sample n` bounded scanning to the first `n` rows
+    /// in source order (deterministic, not a random sample); `None` when
+    /// the full dataset was scanned.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub sample_size: Option<u64>,
+    pub findings: Vec<PiiFinding>,
+}
+
+/// One (column, recognizer) finding with at least one validated match —
+/// see `datagov_pii::scanner` for the confidence model and scanning
+/// semantics that produce this.
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+pub struct PiiFinding {
+    pub column: String,
+    /// e.g. `"EMAIL_ADDRESS"`, `"US_SSN"`.
+    pub entity: String,
+    /// The recognizer id that produced this finding (a built-in id, or a
+    /// custom recognizer's `id` from a `--recognizers` YAML file).
+    pub recognizer: String,
+    /// `clamp(base_confidence + validator_bonus + context_bonus, 0.0, 1.0)`
+    /// — see `datagov_pii::confidence` for the exact formula.
+    pub confidence: f64,
+    /// Rows with at least one validated match for this
+    /// (column, recognizer) pair.
+    pub match_count: u64,
+    /// `match_count / scanned_rows_for_this_column * 100`, where
+    /// `scanned_rows_for_this_column` is the number of non-null scanned
+    /// values in this column (not the dataset-wide `scanned_rows`).
+    pub match_percentage: f64,
+    /// Up to 3 masked example matches — never a raw value. Each entry is
+    /// rendered via `crate::mask::Masked`, the same type used elsewhere
+    /// in the envelope.
+    pub sample_evidence: Vec<String>,
+    /// A concrete, human-readable explanation, e.g. "column name matches
+    /// context term 'ssn'; 12/50 values (24.0%) matched US_SSN and
+    /// passed validation".
+    pub reason: String,
+}
+
 empty_section!(
     /// Placeholder for the `quality` section; populated in a later change.
     QualitySection
@@ -326,7 +373,11 @@ empty_section!(
     PolicySection
 );
 empty_section!(
-    /// Placeholder for the `evidence` section; populated starting Bolt 5.
+    /// Placeholder for the `evidence` section; populated in a later
+    /// change. **Bolt 5 correction:** the Bolt 1 comment here said
+    /// "populated starting Bolt 5", but Bolt 5's brief scopes this bolt
+    /// to the `pii` section only — evidence-chain reporting is a
+    /// separate, later concern.
     EvidenceSection
 );
 
@@ -499,6 +550,43 @@ mod tests {
         let value = serde_json::to_value(&report).unwrap();
         assert!(value.get("dataset").is_some());
         assert!(value.get("profile").is_none());
+    }
+
+    #[test]
+    fn pii_section_flattens_and_serializes_findings() {
+        let pii = PiiSection {
+            scanned_columns: 1,
+            scanned_rows: 10,
+            sample_size: None,
+            findings: vec![PiiFinding {
+                column: "ssn".to_string(),
+                entity: "US_SSN".to_string(),
+                recognizer: "us_ssn".to_string(),
+                confidence: 0.9,
+                match_count: 10,
+                match_percentage: 100.0,
+                sample_evidence: vec!["55…01".to_string()],
+                reason: "column name matches context term 'ssn'; 10/10 values (100.0%) matched \
+                         US_SSN and passed validation"
+                    .to_string(),
+            }],
+        };
+        let sections = Sections {
+            pii: Some(pii),
+            ..Default::default()
+        };
+        let report = ReportBuilder::new().sections(sections).build();
+        let value = serde_json::to_value(&report).unwrap();
+        assert_eq!(value["pii"]["scanned_columns"], 1);
+        assert_eq!(value["pii"]["findings"][0]["entity"], "US_SSN");
+        assert_eq!(value["pii"]["findings"][0]["confidence"], 0.9);
+        // sample_size omitted (None) rather than serialized as null.
+        assert!(
+            !value["pii"]
+                .as_object()
+                .unwrap()
+                .contains_key("sample_size")
+        );
     }
 
     #[test]

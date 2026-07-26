@@ -6,8 +6,11 @@
 //! 2. Masking rule: strings of length 8 or more show up to 2 leading
 //!    characters, an ellipsis, and up to 2 trailing characters; shorter
 //!    strings are fully masked as `●●●`.
-//! 3. Per-entity mask styles (PII-specific formats) arrive in Bolt 5; this
-//!    module stays deliberately generic until then.
+//! 3. **Bolt 5 note:** `pii scan`'s `PiiFinding::sample_evidence` reuses
+//!    this exact generic type unchanged — the brief was explicit that
+//!    there is to be no second masking implementation, so no per-entity
+//!    mask styles were added here. This module stays deliberately
+//!    generic.
 
 use serde::Serialize;
 

@@ -3,8 +3,8 @@
 //!
 //! 1. Parses global flags (`--output`, `--quiet`, `--verbose`) and
 //!    subcommands (`version`, `capabilities`, `inspect`, `profile`,
-//!    `query`, `sql parse|format|transpile`) via clap derive
-//!    (`cli::Cli`).
+//!    `query`, `sql parse|format|transpile`, `pii scan|recognizers
+//!    list|recognizers validate`) via clap derive (`cli::Cli`).
 //! 2. Initializes the shared `tracing` subscriber via
 //!    `datagov_core::logging::init` before dispatching any command.
 //! 3. Dispatches to one thin command function per subcommand
@@ -24,7 +24,7 @@ mod cli;
 mod commands;
 
 use clap::Parser;
-use cli::{Cli, Command, OutputFormat, SqlAction};
+use cli::{Cli, Command, OutputFormat, PiiAction, RecognizersAction, SqlAction};
 
 fn main() {
     let cli = Cli::parse();
@@ -63,6 +63,30 @@ fn main() {
             SqlAction::Transpile { path, from, to } => {
                 commands::sql::run_transpile(&path, &from, &to, cli.output)
             }
+        },
+        Command::Pii { action } => match action {
+            PiiAction::Scan {
+                path,
+                r#type,
+                sample,
+                field,
+                recognizers,
+                fail_on,
+            } => commands::pii::run_scan(
+                &path,
+                r#type.as_deref(),
+                sample,
+                field.as_deref(),
+                recognizers.as_deref(),
+                fail_on,
+                cli.output,
+            ),
+            PiiAction::Recognizers { action } => match action {
+                RecognizersAction::List => commands::pii::run_recognizers_list(cli.output),
+                RecognizersAction::Validate { path } => {
+                    commands::pii::run_recognizers_validate(&path, cli.output)
+                }
+            },
         },
     };
 

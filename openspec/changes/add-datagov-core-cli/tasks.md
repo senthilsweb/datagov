@@ -160,18 +160,36 @@ fidelity gaps, none affecting the committed corpus).
 - [x] Exit codes verified: 2 (malformed SQL), 3 (missing file), 4
       (unknown dialect); corpus round-trip suite green
 
-## Bolt 5 — `pii scan` + recognizers
+## Bolt 5 — `pii scan` + recognizers ✅ (2026-07-26)
 
-- [ ] Recognizer registry: built-ins for the confirmed entity set
-      (regex + validators: Luhn, SSN structure, and the rest per Q3)
-- [ ] Context-term and column-name scoring; confidence model documented
-      in the spec
-- [ ] Recognizer YAML loader + `pii recognizers list|validate`
-      (PRD §10.9 schema published)
-- [ ] Masked evidence type in `datagov-core` — no unmasked accessor
-- [ ] HARD masking eval: full output surface greps clean of every
-      fixture value; per-entity detection eval on the fixture set
-- [ ] `--fail-on` threshold → exit code 12, integration-tested
+Built by a Sonnet 5 agent from `briefs/bolt-5.md`; architect-reviewed
+(gates re-run independently, hands-on tested against
+`examples/pii-fixture.csv`: all 10 entities detected with sane
+confidence values, masking verified clean by grepping the full JSON
+and human output for every raw fixture value directly, `--fail-on`
+threshold at both sides of a real finding's confidence, `recognizers
+list/validate`, and exit codes 2/3/4/12). 197 tests green (196 run + 1
+pre-existing informational `#[ignore]`).
+
+- [x] Recognizer registry: built-ins for all 10 confirmed entities
+      (email, phone, IPv4, IPv6, URL, US SSN, credit card, UUID, MAC,
+      US ZIP) — regex + validators (Luhn, `std::net` parsing, `url`
+      crate, SSA-invalid-range rejection, UUID version/variant nibble
+      check)
+- [x] Context-term and column-name scoring; confidence model
+      documented and verified (`clamp(base + 0.10·validated +
+      0.05·context, 0, 1)` — base values are a logged Decision, see
+      design.md)
+- [x] Recognizer YAML loader + `pii recognizers list|validate` (PRD
+      §10.9 schema); `--recognizers <path>` merges/overrides built-ins
+      by id
+- [x] Masked evidence type reuses Bolt 2's `Masked` — no second
+      masking implementation, no unmasked accessor
+- [x] HARD masking eval: architect-independently re-verified — grepped
+      full JSON + human output for every raw value in both
+      `customers.parquet` and `pii-fixture.csv`; zero hits
+- [x] `--fail-on` threshold → exit code 12, verified both sides
+      (above/below an actual finding's confidence)
 
 ## Bolt 6 — `report` + `doctor`
 

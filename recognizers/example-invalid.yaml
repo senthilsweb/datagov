@@ -1,0 +1,12 @@
+# example-invalid.yaml — A deliberately malformed recognizers file used
+# by `datagov-cli`'s `--recognizers`/`pii recognizers validate`
+# integration tests to pin the "invalid recognizer file" scenario in
+# openspec/changes/add-datagov-core-cli/specs/pii-detection/spec.md:
+# an unclosed regex group in `patterns`, which must fail to load with
+# exit code 2, naming this recognizer's id and the offending field.
+recognizers:
+  - id: broken_pattern
+    entity: BROKEN
+    confidence: 0.5
+    patterns:
+      - '(unclosed'

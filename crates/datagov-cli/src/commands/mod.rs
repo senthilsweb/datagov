@@ -12,6 +12,7 @@
 
 pub mod capabilities;
 pub mod inspect;
+pub mod pii;
 pub mod profile;
 pub mod query;
 pub mod sql;

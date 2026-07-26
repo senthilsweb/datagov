@@ -1571,6 +1571,7 @@ dependencies = [
  "csv",
  "datagov-core",
  "datagov-data",
+ "datagov-pii",
  "datagov-sql",
  "jsonschema",
  "parquet 59.1.0",
@@ -1620,6 +1621,17 @@ dependencies = [
 [[package]]
 name = "datagov-pii"
 version = "0.1.0"
+dependencies = [
+ "datafusion",
+ "datagov-core",
+ "datagov-data",
+ "regex",
+ "serde",
+ "serde_json",
+ "serde_yaml",
+ "tokio",
+ "url",
+]
 
 [[package]]
 name = "datagov-report"

@@ -16,6 +16,12 @@ cat examples/customers.jsonl | ./target/release/datagov inspect - --type jsonl
 # actual first row of customers.csv to see it in action
 ./target/release/datagov inspect examples/customers.parquet --output json \
   | jq '.dataset.sample_rows[0] | {email, phone}'
+
+# pii scan: entity-typed, confidence-scored findings — never raw values
+./target/release/datagov pii scan examples/customers.parquet
+./target/release/datagov pii scan examples/pii-fixture.csv --output json | jq '.pii.findings'
+./target/release/datagov pii scan examples/pii-fixture.csv --field notes
+./target/release/datagov pii recognizers list
 ```
 
 All datasets here are **synthetic** — generated identities and Lorem
@@ -54,6 +60,29 @@ golden-output tests, not for performance benchmarking (see
 this fixture set is reused as the `pii scan` masking-eval target from
 Bolt 5 onward; no separate PII fixture is needed for the entities it
 covers.
+
+## `pii-fixture.csv` — synthetic fixture for the 8 non-`customers.*` PII entities (Bolt 5)
+
+`customers.*` naturally covers `EMAIL_ADDRESS` and `PHONE_NUMBER` (real,
+synthetic-identity values already in that dataset). The other 8 entities
+in the inception-gate-confirmed set (proposal.md Q3) need dedicated
+columns, so `pii-fixture.csv` is a small (10-row), hand-authored,
+clearly-synthetic dataset — no generator script, no external download.
+Every value is either a universally-recognized public test/placeholder
+constant or drawn from an IANA/IETF documentation-reserved range, never
+a real, uniquely-identifying value:
+
+| Column | Entity | Provenance |
+|---|---|---|
+| `ipv4_address` | `IP_ADDRESS_V4` | IANA TEST-NET-1/2/3 ranges (RFC 5737): `192.0.2.0/24`, `198.51.100.0/24`, `203.0.113.0/24` — reserved specifically for documentation/examples, never routable on the real internet. |
+| `ipv6_address` | `IP_ADDRESS_V6` | IANA documentation prefix (RFC 3849): `2001:db8::/32`. |
+| `website_url` | `URL` | IANA-reserved example domains (RFC 2606): `example.com`, `example.org`, `example.net`. |
+| `ssn` | `US_SSN` | Area number `555` — never issued by the SSA (the same convention that makes `555` telephone numbers fictional), so every value is guaranteed non-real while still passing this bolt's own SSA-area validator. |
+| `credit_card_number` | `CREDIT_CARD` | The universally-recognized Luhn-valid sandbox test numbers published by major payment processors' own docs: `4111111111111111` (Visa), `5555555555554444` (Mastercard), `378282246310005` (Amex), `6011111111111117` (Discover). |
+| `record_uuid` | `UUID` | Well-known public example UUIDs from RFC 4122 and the OpenAPI/Swagger docs (`3fa85f64-5717-4562-…`, `550e8400-e29b-41d4-…`, `6ba7b810-9dad-11d1-…`), reused across rows — not generated per-record, since these are illustrative constants, not identities. |
+| `mac_address` | `MAC_ADDRESS` | Locally-administered addresses (the U/L bit set in the first octet, e.g. `02:00:00:00:00:01`) — the standard way to construct a MAC address that is guaranteed not to collide with any real vendor-assigned OUI. |
+| `zip_code` | `US_ZIP_CODE` | Generic, widely-reused example ZIPs (`12345`, `90210`, …) — district-level codes, not street-level addresses. |
+| `notes` | (prose) | Free text with an `IP_ADDRESS_V4`/`URL` embedded mid-sentence (e.g. `"Reported via https://example.com/incidents/42 from host 192.0.2.10…"`) — exercises `pii scan`'s `find_iter`-based embedded-match detection (PRD §10.8's `--field text` example) against entities beyond email/phone. |
 
 ## `claimwise-*.csv` — synthetic healthcare RCM data
 

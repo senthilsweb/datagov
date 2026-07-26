@@ -1,0 +1,32 @@
+# example-custom.yaml — A valid custom recognizers file per the PRD
+# §10.9 schema, used by `datagov-cli`'s `--recognizers` integration
+# tests (crates/datagov-cli/tests/pii.rs) and safe to use as a
+# hand-editable starting point for a real project.
+#
+# Exercises both custom-recognizer paths documented in the Bolt 5 brief:
+#   - `us_ssn` shares its id with a built-in recognizer, so it overrides
+#     that built-in's confidence/patterns/context/validators in place
+#     (the entry here is PRD §10.9's own worked example, verbatim).
+#   - `internal_ticket_id` has no built-in with that id, so it is simply
+#     added alongside the 10 built-ins.
+recognizers:
+  - id: us_ssn
+    entity: US_SSN
+    confidence: 0.85
+    patterns:
+      - '\b\d{3}-\d{2}-\d{4}\b'
+    context:
+      - ssn
+      - social_security
+      - taxpayer_id
+    validators:
+      - us_ssn
+
+  - id: internal_ticket_id
+    entity: INTERNAL_TICKET_ID
+    confidence: 0.60
+    patterns:
+      - '\bTICKET-\d{4,8}\b'
+    context:
+      - ticket
+      - ticket_id

@@ -3,7 +3,14 @@
 //! 1. `compute_profile` registers the target file as a DataFusion table
 //!    via the shared `crate::engine::register_dataset_table` helper (the
 //!    same one `datagov query` uses — CSV/Parquet only, per PRD §10.3's
-//!    scope for the DataFusion engine wired up in this bolt). When
+//!    scope for the DataFusion engine wired up in this bolt). **Bolt 5
+//!    correction:** that shared helper was widened to also register
+//!    TSV/JSONL for `pii scan`'s wider format scope, so `compute_profile`
+//!    now has its own explicit format guard at entry — rejecting
+//!    anything but CSV/Parquet before ever calling the shared helper —
+//!    to keep `profile`'s documented scope unchanged (`query` already
+//!    self-gates in its own `resolve_file_references`, so it needed no
+//!    equivalent change). When
 //!    `--sample n` is given, the first `n` rows (in source order — see
 //!    `crate::engine::new_session_context`'s single-partition config)
 //!    are materialized once into an in-memory table and every subsequent
@@ -81,6 +88,22 @@ pub async fn compute_profile(
     columns: Option<&[String]>,
     sample: Option<u64>,
 ) -> Result<ProfileSection, DatagovError> {
+    // Bolt 5 correction: `register_dataset_table` now also accepts
+    // TSV/JSONL (for `pii scan`); `profile` stays CSV/Parquet-only per
+    // PRD §10.3, so it must gate here rather than rely solely on the
+    // shared helper's own (now wider) format match.
+    if !matches!(format, Format::Csv | Format::Parquet) {
+        return Err(DatagovError::unsupported_input(
+            format!(
+                "'{}' has format '{}', but profile supports only CSV and Parquet",
+                path.display(),
+                format.as_str()
+            ),
+            "convert the file to CSV or Parquet, or use 'datagov inspect' for other formats"
+                .to_string(),
+        ));
+    }
+
     let ctx = new_session_context();
     let mut used_names = HashSet::new();
     let base_table = register_dataset_table(&ctx, path, format, &mut used_names).await?;
@@ -461,6 +484,16 @@ mod tests {
         for column in &section.columns {
             assert_eq!(column.row_count, 10);
         }
+    }
+
+    #[tokio::test]
+    async fn tsv_is_still_unsupported_after_the_shared_engine_widened() {
+        let path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("../../examples/customers.tsv");
+        let err = compute_profile(&path, Format::Tsv, None, None)
+            .await
+            .unwrap_err();
+        assert_eq!(err.exit_code(), datagov_core::ExitCode::UnsupportedInput);
     }
 
     #[tokio::test]

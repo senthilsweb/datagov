@@ -13,7 +13,11 @@
 //!    <name>]`, `format <path|-> [--dialect <name>] [--write]`,
 //!    `transpile <path|-> --from <dialect> --to <dialect>`. All three
 //!    default `--dialect` to `datagov_sql::DEFAULT_DIALECT` ("ansi")
-//!    when omitted.
+//!    when omitted. Bolt 5 adds `pii`, a nested subcommand
+//!    (`PiiAction`): `scan <path> [--type ..] [--sample n] [--field
+//!    a,b] [--recognizers path] [--fail-on 0.x]` and `recognizers`
+//!    (itself nested, `RecognizersAction`): `list` and
+//!    `validate <path>`.
 //! 3. Defines `OutputFormat`, the clap-facing rendering choice (`json` |
 //!    `table` | `csv`, default `table`). `csv` is Bolt 3, accepted only
 //!    by `query` — every other command rejects it explicitly rather than
@@ -94,6 +98,66 @@ pub enum Command {
     Sql {
         #[command(subcommand)]
         action: SqlAction,
+    },
+    /// Deterministic PII detection (PRD §10.8/§10.9): `scan` a dataset
+    /// for entity-typed, confidence-scored findings (masked evidence
+    /// only — no raw value ever appears in the output), or manage
+    /// recognizers.
+    Pii {
+        #[command(subcommand)]
+        action: PiiAction,
+    },
+}
+
+#[derive(Subcommand, Debug)]
+pub enum PiiAction {
+    /// Scan a dataset (CSV, TSV, JSONL, or Parquet) for PII. Every
+    /// finding carries entity, column, confidence, recognizer, masked
+    /// evidence, match count/percentage, and reason — never a raw value.
+    Scan {
+        /// Path to the dataset (a real file — DataFusion table
+        /// registration needs random file access, so `-` is not
+        /// supported).
+        path: String,
+        /// Explicit format when it cannot be inferred from the path.
+        #[arg(long = "type", value_name = "FORMAT")]
+        r#type: Option<String>,
+        /// Scan only the first N rows in source order (deterministic —
+        /// not a random sample).
+        #[arg(long, value_name = "N")]
+        sample: Option<u64>,
+        /// Scan only these column names (comma-separated); default is
+        /// all columns.
+        #[arg(long, value_delimiter = ',', value_name = "FIELDS")]
+        field: Option<Vec<String>>,
+        /// Load additional recognizers from a PRD §10.9 YAML file. A
+        /// custom recognizer whose `id` matches a built-in overrides it;
+        /// otherwise it is added.
+        #[arg(long, value_name = "PATH")]
+        recognizers: Option<String>,
+        /// Exit with code 12 if any finding's confidence is at or above
+        /// this threshold — checked after the full report is emitted,
+        /// never instead of it.
+        #[arg(long, value_name = "CONFIDENCE")]
+        fail_on: Option<f64>,
+    },
+    /// Enumerate or validate PII recognizers.
+    Recognizers {
+        #[command(subcommand)]
+        action: RecognizersAction,
+    },
+}
+
+#[derive(Subcommand, Debug)]
+pub enum RecognizersAction {
+    /// List the 10 built-in recognizers (id, entity, confidence, pattern
+    /// count).
+    List,
+    /// Validate a PRD §10.9 recognizers YAML file: regex compiles,
+    /// confidence is in range, and every validator name is known.
+    Validate {
+        /// Path to the recognizers YAML file.
+        path: String,
     },
 }
 

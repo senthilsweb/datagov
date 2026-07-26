@@ -6,3 +6,12 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
+datagov-core = { workspace = true }
+datagov-data = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+serde_yaml = { workspace = true }
+regex = { workspace = true }
+url = { workspace = true }
+datafusion = { workspace = true }
+tokio = { workspace = true }

@@ -173,6 +173,25 @@ of its own (only a date/time-format-specific one) — this covers this
 bolt's corpus, not a claim of complete dialect-compatibility knowledge.
 Revisit if a future change needs any of the excluded constructs.
 
+**Decision (2026-07-26, Bolt 5 Construction):** the brief's per-entity
+table specified pattern/validator but not numeric `base_confidence`
+values — the implementer set all 10 (documented in
+`datagov-pii/src/builtins.rs`), calibrated by validator strength (e.g.
+MAC 0.80 since its format alone is fully specific; ZIP 0.50 as a bare
+5-digit shape with the weakest signal). Architect-reviewed: values are
+reasonable and the confidence arithmetic is correct
+(`clamp(base + 0.10·validated + 0.05·context_match, 0, 1)`, verified
+against 5 hand-computed cases). Revisit if real-world false-positive
+rates suggest recalibration once more datasets are tested.
+
+**Correction (2026-07-26, Bolt 5 Construction):** `pii scan` needed
+TSV and JSONL support (PRD §10.8's own examples include a `.jsonl`
+scan), so `datagov-data::engine::register_dataset_table` was widened
+beyond `query`/`profile`'s CSV/Parquet-only scope. `profile` gained an
+explicit guard so this widening doesn't silently expand its own PRD
+§10.2 contract — a regression test confirms `profile` still rejects
+TSV after the shared helper's capability grew.
+
 ## Fixtures and evals
 
 **Decision (2026-07-26, pre-Bolt-2 planning):** rather than a

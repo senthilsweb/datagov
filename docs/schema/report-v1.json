@@ -348,7 +348,7 @@
       }
     },
     "EvidenceSection": {
-      "description": "Placeholder for the `evidence` section; populated starting Bolt 5.",
+      "description": "Placeholder for the `evidence` section; populated in a later change. **Bolt 5 correction:** the Bolt 1 comment here said \"populated starting Bolt 5\", but Bolt 5's brief scopes this bolt to the `pii` section only — evidence-chain reporting is a separate, later concern.",
       "type": "object"
     },
     "Input": {
@@ -400,9 +400,97 @@
         }
       }
     },
+    "PiiFinding": {
+      "description": "One (column, recognizer) finding with at least one validated match — see `datagov_pii::scanner` for the confidence model and scanning semantics that produce this.",
+      "type": "object",
+      "required": [
+        "column",
+        "confidence",
+        "entity",
+        "match_count",
+        "match_percentage",
+        "reason",
+        "recognizer",
+        "sample_evidence"
+      ],
+      "properties": {
+        "column": {
+          "type": "string"
+        },
+        "confidence": {
+          "description": "`clamp(base_confidence + validator_bonus + context_bonus, 0.0, 1.0)` — see `datagov_pii::confidence` for the exact formula.",
+          "type": "number",
+          "format": "double"
+        },
+        "entity": {
+          "description": "e.g. `\"EMAIL_ADDRESS\"`, `\"US_SSN\"`.",
+          "type": "string"
+        },
+        "match_count": {
+          "description": "Rows with at least one validated match for this (column, recognizer) pair.",
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "match_percentage": {
+          "description": "`match_count / scanned_rows_for_this_column * 100`, where `scanned_rows_for_this_column` is the number of non-null scanned values in this column (not the dataset-wide `scanned_rows`).",
+          "type": "number",
+          "format": "double"
+        },
+        "reason": {
+          "description": "A concrete, human-readable explanation, e.g. \"column name matches context term 'ssn'; 12/50 values (24.0%) matched US_SSN and passed validation\".",
+          "type": "string"
+        },
+        "recognizer": {
+          "description": "The recognizer id that produced this finding (a built-in id, or a custom recognizer's `id` from a `--recognizers` YAML file).",
+          "type": "string"
+        },
+        "sample_evidence": {
+          "description": "Up to 3 masked example matches — never a raw value. Each entry is rendered via `crate::mask::Masked`, the same type used elsewhere in the envelope.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
     "PiiSection": {
-      "description": "Placeholder for the `pii` section; populated starting Bolt 5.",
-      "type": "object"
+      "description": "The `pii` section (PRD §10.8), populated by `datagov pii scan` via `datagov_pii::scanner`. Replaces the Bolt 1 empty placeholder.",
+      "type": "object",
+      "required": [
+        "findings",
+        "scanned_columns",
+        "scanned_rows"
+      ],
+      "properties": {
+        "findings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PiiFinding"
+          }
+        },
+        "sample_size": {
+          "description": "`Some(n)` when `--sample n` bounded scanning to the first `n` rows in source order (deterministic, not a random sample); `None` when the full dataset was scanned.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "scanned_columns": {
+          "description": "Number of columns actually scanned (all columns, or the `--field`-restricted subset).",
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0.0
+        },
+        "scanned_rows": {
+          "description": "Number of rows in the scanned table (the full dataset, or the `--sample`-bounded subset).",
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0.0
+        }
+      }
     },
     "PolicySection": {
       "description": "Placeholder for the `policy` section; populated in a later change.",

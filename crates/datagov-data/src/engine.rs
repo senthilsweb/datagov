@@ -16,18 +16,29 @@
 //!    identifier per the Bolt 3 brief: every non-alphanumeric character
 //!    becomes `_`; a result that would start with a digit is prefixed
 //!    with `t_`.
-//! 3. `register_dataset_table` registers a local CSV or Parquet file as
-//!    an external DataFusion table under a name derived from
-//!    `sanitize_table_name`, de-duplicated against `used_names` so two
-//!    distinct files sharing a stem (e.g. `a/data.csv` and
-//!    `b/data.parquet`) don't collide. Any other detected format is
-//!    `DatagovError::UnsupportedInput` (exit 4) — `query`/`profile` are
-//!    CSV/Parquet-only per PRD §10.3.
+//! 3. `register_dataset_table` registers a local file as an external
+//!    DataFusion table under a name derived from `sanitize_table_name`,
+//!    de-duplicated against `used_names` so two distinct files sharing a
+//!    stem (e.g. `a/data.csv` and `b/data.parquet`) don't collide.
+//!    Supports CSV, TSV (`CsvReadOptions` with a tab delimiter — Bolt 5,
+//!    added for `pii scan`'s wider format scope), JSONL (DataFusion's
+//!    JSON reader is natively NDJSON — `ctx.register_json`, also Bolt 5),
+//!    and Parquet. Plain JSON arrays (`Format::Json`) have no native
+//!    single-array DataFusion reader and are always
+//!    `DatagovError::UnsupportedInput` (exit 4).
+//!    **`query`/`profile` remain CSV/Parquet-only** (PRD §10.3): `query`
+//!    self-gates in its own `resolve_file_references` match before ever
+//!    calling this function, and `profile::compute_profile` now has its
+//!    own explicit format guard at entry (see that module) — this
+//!    function widening to also accept TSV/JSONL does not, by itself,
+//!    widen either command's documented scope.
 
 use std::collections::HashSet;
 use std::path::Path;
 
-use datafusion::prelude::{CsvReadOptions, ParquetReadOptions, SessionConfig, SessionContext};
+use datafusion::prelude::{
+    CsvReadOptions, JsonReadOptions, ParquetReadOptions, SessionConfig, SessionContext,
+};
 use datagov_core::DatagovError;
 
 use crate::format::Format;
@@ -80,6 +91,24 @@ pub async fn register_dataset_table(
             ctx.register_csv(&table_name, path_str.as_ref(), CsvReadOptions::new())
                 .await
         }
+        Format::Tsv => {
+            ctx.register_csv(
+                &table_name,
+                path_str.as_ref(),
+                CsvReadOptions::new()
+                    .delimiter(b'\t')
+                    .file_extension(".tsv"),
+            )
+            .await
+        }
+        Format::Jsonl => {
+            ctx.register_json(
+                &table_name,
+                path_str.as_ref(),
+                JsonReadOptions::default().file_extension(".jsonl"),
+            )
+            .await
+        }
         Format::Parquet => {
             ctx.register_parquet(
                 &table_name,
@@ -88,15 +117,13 @@ pub async fn register_dataset_table(
             )
             .await
         }
-        other => {
+        Format::Json => {
             return Err(DatagovError::unsupported_input(
                 format!(
-                    "'{}' has format '{}', but query/profile support only CSV and Parquet",
-                    path.display(),
-                    other.as_str()
+                    "'{}' is a JSON array; DataFusion has no native single-array reader",
+                    path.display()
                 ),
-                "convert the file to CSV or Parquet, or use 'datagov inspect' for other formats"
-                    .to_string(),
+                "convert to .jsonl (one record per line), or use CSV/TSV/Parquet".to_string(),
             ));
         }
     };
@@ -113,7 +140,7 @@ pub async fn register_dataset_table(
 
 #[cfg(test)]
 mod tests {
-    use super::sanitize_table_name;
+    use super::*;
 
     #[test]
     fn replaces_non_alphanumeric_characters() {
@@ -129,5 +156,68 @@ mod tests {
     #[test]
     fn empty_stem_becomes_t() {
         assert_eq!(sanitize_table_name(""), "t");
+    }
+
+    fn examples_dir() -> std::path::PathBuf {
+        std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../examples")
+    }
+
+    #[tokio::test]
+    async fn registers_tsv_via_the_widened_helper() {
+        let ctx = new_session_context();
+        let mut used_names = HashSet::new();
+        let name = register_dataset_table(
+            &ctx,
+            &examples_dir().join("customers.tsv"),
+            Format::Tsv,
+            &mut used_names,
+        )
+        .await
+        .unwrap();
+        let batches = ctx
+            .sql(&format!("SELECT COUNT(*) AS n FROM \"{name}\""))
+            .await
+            .unwrap()
+            .collect()
+            .await
+            .unwrap();
+        assert!(!batches.is_empty());
+    }
+
+    #[tokio::test]
+    async fn registers_jsonl_via_the_widened_helper() {
+        let ctx = new_session_context();
+        let mut used_names = HashSet::new();
+        let name = register_dataset_table(
+            &ctx,
+            &examples_dir().join("customers.jsonl"),
+            Format::Jsonl,
+            &mut used_names,
+        )
+        .await
+        .unwrap();
+        let batches = ctx
+            .sql(&format!("SELECT COUNT(*) AS n FROM \"{name}\""))
+            .await
+            .unwrap()
+            .collect()
+            .await
+            .unwrap();
+        assert!(!batches.is_empty());
+    }
+
+    #[tokio::test]
+    async fn json_array_is_still_unsupported() {
+        let ctx = new_session_context();
+        let mut used_names = HashSet::new();
+        let err = register_dataset_table(
+            &ctx,
+            &examples_dir().join("customers.json"),
+            Format::Json,
+            &mut used_names,
+        )
+        .await
+        .unwrap_err();
+        assert_eq!(err.exit_code(), datagov_core::ExitCode::UnsupportedInput);
     }
 }
