@@ -17,17 +17,23 @@
       master copy in `my-agent-task-register`, symlinked globally
 - [ ] Proposal status → **APPROVED** (pending question 3)
 
-## Bolt 1 — Skill ✅ unblocked, proceeding now
+## Bolt 1 — Skill ✅ (2026-07-26)
 
-- [ ] `~/work/my-agent-task-register/skills/mkdocs-site/SKILL.md`
-      (master) per design.md — frontmatter `name`, `owner:
-      Senthilnathan`, `github: https://github.com/senthilsweb`,
-      `description`, `user-invocable: true`; includes the mkdocs.yml/
-      docs.yml templates, mandatory-page rules, and the custom-domain-
-      inheritance finding
-- [ ] `~/.claude/skills/mkdocs-site` symlinked to the master
-- [ ] Dry-run: confirm the skill's frontmatter description actually
-      surfaces it for a "set up a docs site" style request
+- [x] `~/work/my-agent-task-register/skills/mkdocs-site/SKILL.md`
+      (master) — frontmatter `name`, `owner: Senthilnathan`, `github:
+      https://github.com/senthilsweb`, `description`, `user-invocable:
+      true`; includes the mkdocs.yml/docs.yml templates,
+      mandatory-page rules, and the custom-domain-inheritance finding.
+      Committed to `my-agent-task-register` (not yet pushed — owner to
+      decide, per that repo's own push cadence)
+- [x] `~/.claude/skills/mkdocs-site` symlinked to the master
+- [x] Dry-run: skill appeared in the available-skills listing
+      immediately after the symlink was created, description intact
+
+**Bolt 2 (site migration) and Bolt 3 (content) wait on open question 3
+(published URL) — see proposal.md.** Nothing under `docs/`,
+`mkdocs.yml`, workflows, or GitHub Pages settings changes until the
+owner decides how to handle the custom-domain-inheritance finding.
 
 ## Bolt 2 — Site migration
 
