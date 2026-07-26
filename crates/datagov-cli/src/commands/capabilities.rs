@@ -26,6 +26,9 @@ const COMMANDS: &[&str] = &[
     "sql parse",
     "sql format",
     "sql transpile",
+    "pii scan",
+    "pii recognizers list",
+    "pii recognizers validate",
 ];
 const FORMATS: &[&str] = &["csv", "tsv", "json", "jsonl", "parquet"];
 const FEATURES: &[&str] = &[];

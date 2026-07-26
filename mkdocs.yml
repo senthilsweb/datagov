@@ -1,0 +1,55 @@
+# Wiki site, published to GitHub Pages by .github/workflows/docs.yml.
+# Pattern shared with senthilsweb/agent-job-matcher and
+# senthilsweb/ai-agents; writing standard:
+# https://senthilsweb.github.io/ai-agents/style-guide/
+# Spec: openspec/changes/add-mkdocs-site/
+site_name: datagov
+site_url: https://senthilsweb.github.io/datagov/   # the only URL this project documents/promotes (see proposal.md Q3)
+repo_url: https://github.com/senthilsweb/datagov
+repo_name: senthilsweb/datagov
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  features: [navigation.sections, navigation.footer, navigation.top,
+             content.code.copy, search.suggest]
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: blue grey
+      accent: indigo
+      toggle: { icon: material/brightness-7, name: Switch to dark mode }
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: blue grey
+      accent: indigo
+      toggle: { icon: material/brightness-4, name: Switch to light mode }
+
+nav:
+  - Home: index.md
+  - Getting Started: getting-started.md
+  - Installation: installation.md
+  - Commands: commands.md
+  - Tutorials: tutorials.md
+  - Use Cases: use-cases.md
+  - Configuration: configuration.md
+  - CI/CD: ci-cd.md
+  - Deployment: deployment.md
+  - FAQ: faq.md
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - tables
+  - footnotes
+  - toc: { permalink: true }
+  - pymdownx.details
+  - pymdownx.tabbed: { alternate_style: true }
+  - pymdownx.superfences:
+      custom_fences:
+        - { name: mermaid, class: mermaid,
+            format: !!python/name:pymdownx.superfences.fence_code_format }
+
+extra_javascript:
+  - https://unpkg.com/tablesort@5.3.0/dist/tablesort.min.js
+  - javascripts/tablesort.js

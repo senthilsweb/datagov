@@ -30,35 +30,52 @@
 - [x] Dry-run: skill appeared in the available-skills listing
       immediately after the symlink was created, description intact
 
-**Bolt 2 (site migration) and Bolt 3 (content) wait on open question 3
-(published URL) — see proposal.md.** Nothing under `docs/`,
-`mkdocs.yml`, workflows, or GitHub Pages settings changes until the
-owner decides how to handle the custom-domain-inheritance finding.
+## Bolt 2 — Site migration ✅ (2026-07-26)
 
-## Bolt 2 — Site migration
+Built by a Sonnet 5 agent from `briefs/bolt-2-3.md`; architect-reviewed
+(`mkdocs build --strict` re-run independently — clean, exit 0 — plus
+confirmed `docs/prd.md`, `docs/schema/`, `openspec/`, and all Rust
+source untouched via `git status`).
 
-- [ ] `mkdocs.yml` at repo root per design.md
-- [ ] `.github/workflows/docs.yml` copied from `agent-job-matcher`
-- [ ] Remove `docs/_config.yml` (Jekyll) and the current ad hoc
-      `index.md`/`installation.md`/`commands.md` in favor of the new
-      structure (content relocates, nothing is silently dropped)
-- [ ] GitHub Pages source switched to "GitHub Actions"
-      (`build_type: workflow`)
-- [ ] `mkdocs build --strict` passes locally
+- [x] `mkdocs.yml` at repo root per design.md, `site_url:
+      https://senthilsweb.github.io/datagov/`
+- [x] `.github/workflows/docs.yml` copied from `agent-job-matcher`
+- [x] Removed `docs/_config.yml` (Jekyll); `index.md`/
+      `installation.md`/`commands.md` replaced with the new structure
+- [x] `build_type: workflow` (already set during the Q3 investigation)
+- [x] `mkdocs build --strict` passes locally — independently
+      re-verified by the architect, zero broken links
 
-## Bolt 3 — Content
+## Bolt 3 — Content ✅ (2026-07-26)
 
-- [ ] `index.md`, `getting-started.md`, `installation.md`,
-      `commands.md` (relocated + restyled)
-- [ ] `tutorials.md`, `use-cases.md`, `configuration.md`, `ci-cd.md`,
-      `faq.md` (new, per design.md's content plan)
-- [ ] Every command shown was actually run against the real fixtures
-      (style guide rule) — no invented output
+Architect spot-checked documented commands against the real release
+binary: `inspect --output csv` (exit 2, exact error text matches),
+`query` against a `.json` file (exit 4, exact error text matches), and
+the `profile --columns email,state` table (byte-for-byte match). Three
+implementer-flagged Proposed Corrections accepted: README updated to
+reflect Bolt 5 (the brief's "no change needed" assumption predated
+this session's own progress), one FAQ citation corrected to point at
+the actual Bolt 2/5 implementation briefs instead of design.md, and
+several headings fixed to the style guide's plain-word-anchor rule.
+
+- [x] All ten pages built per design.md's content plan
+- [x] Every command shown was actually run against real fixtures — no
+      invented output (spot-checked independently, see above)
+- [x] **Additional architect fix, found during review**: `datagov
+      capabilities` was missing `pii scan`/`pii recognizers` from its
+      command list (same class of staleness bug as the earlier Bolt 4
+      gap) — fixed in `crates/datagov-cli/src/commands/
+      capabilities.rs` (docs-content agent correctly left this alone
+      per its own "no Rust source" scope; architect fixed it directly,
+      197/197 tests still green); `installation.md`'s note updated to
+      say "fixed on `main`, not yet in a tagged release" instead of
+      "not yet fixed"
 
 ## Bolt 4 — Verify + archive
 
 - [ ] `docs:` commit produces no release/CI-build side effect
-      (acceptance criterion 3)
+      (acceptance criterion 3) — verify after this commit lands and
+      the docs workflow runs
 - [ ] Site reachable at the published URL, content matches the repo
 - [ ] Proposal status → **IMPLEMENTED**, then **VERIFIED**; archive
       the change and merge the spec delta into `openspec/specs/`

@@ -19,22 +19,34 @@ default, agent- and CI-friendly.
 
 ## Status
 
-**In construction — Milestone 0.1, Bolt 2 of 7 done.** The project
+**In construction — Milestone 0.1, Bolt 5 of 7 done.** The project
 follows AI-DLC: specs before code, tracked in
 [`add-datagov-core-cli`](openspec/changes/add-datagov-core-cli/proposal.md).
-Landed so far: the CLI frame, the normalized JSON report envelope,
-documented exit codes (Bolt 1), and `datagov inspect` — format
-detection, schema/type inference, and masked sample rows across
-CSV/TSV/JSON/JSONL/Parquet (Bolt 2). `profile`, `query`, `sql`,
-`pii scan`, and `report` are still to come.
+Landed so far: the CLI frame and JSON report envelope (Bolt 1),
+`inspect` (Bolt 2), `profile`/`query` (Bolt 3), `sql parse|format|
+transpile` (Bolt 4), and `pii scan` + recognizers (Bolt 5). `report`
+and `doctor` (Bolt 6) are still to come; release proving (Bolt 7) is
+in progress.
 
-**No tagged release yet** — see [Try it now](#try-it-now) below to
-build from source and run what exists today.
+**No final `v0.1.0` release yet**, but `v0.1.0-rc.*` pre-release
+snapshots are published as each bolt lands — see
+[Try it now](#try-it-now) below to install one and run what exists
+today.
 
 ## Try it now
 
-No release is published yet, so install from source (needs a Rust
-toolchain — `rustup.rs` if you don't have one):
+```bash
+DATAGOV_VERSION=v0.1.0-rc.5 curl -fsSL \
+  https://raw.githubusercontent.com/senthilsweb/datagov/main/install.sh | sh
+```
+
+(`install.sh` detects your OS/arch, downloads the matching binary from
+GitHub Releases, verifies its SHA-256 checksum, and installs to
+`~/.local/bin` — no sudo. Drop `DATAGOV_VERSION` once a final `v0.1.0`
+ships to always get the latest stable release.)
+
+Or build from source (needs a Rust toolchain — `rustup.rs` if you
+don't have one):
 
 ```bash
 git clone https://github.com/senthilsweb/datagov.git
@@ -42,16 +54,6 @@ cd datagov
 cargo build --release
 ./target/release/datagov version
 ```
-
-Once a release is published, the same binary will install with:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/senthilsweb/datagov/main/install.sh | sh
-```
-
-(`install.sh` detects your OS/arch, downloads the matching binary from
-GitHub Releases, verifies its SHA-256 checksum, and installs to
-`~/.local/bin` — no sudo. Pin a version with `DATAGOV_VERSION=v0.1.0`.)
 
 ### Take it for a spin
 
@@ -67,6 +69,14 @@ need to bring your own data to try the first command:
   | jq '.dataset.sample_rows[0] | {email, phone}'
 ```
 
+## Documentation
+
+The full wiki is published at
+[senthilsweb.github.io/datagov](https://senthilsweb.github.io/datagov/):
+Getting Started, Installation, Commands, Tutorials, Use Cases,
+Configuration, CI/CD, Deployment, and FAQ. Source lives under
+[`docs/`](docs/), built with MkDocs Material.
+
 ## Where things live
 
 | Path | Purpose |
@@ -76,7 +86,7 @@ need to bring your own data to try the first command:
 | `AGENTS.md` | Conventions for every agent and human in this repo |
 | `crates/` | Rust workspace — `datagov-cli`, `datagov-core`, `datagov-data`, … |
 | `examples/` | Real synthetic fixtures for trying commands and golden tests |
-| `install.sh` | One-line installer (active once a release is published) |
+| `install.sh` | One-line installer, works today against pre-release tags |
 | `.github/workflows/` | CI quality gates + tag-driven binary releases |
 
 ## Process

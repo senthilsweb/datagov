@@ -1,14 +1,13 @@
----
-layout: default
-title: Installation
----
-
 # Installation
 
-No final release has shipped yet — `v0.1.0-rc.*` pre-release
-snapshots are published as each bolt lands, for testing only. See
-[Releases](https://github.com/senthilsweb/datagov/releases) for the
-latest tag.
+At the end you will have a working `datagov` binary, either installed
+from a pre-release snapshot or built from source.
+
+!!! note "No final release yet"
+    `v0.1.0` has not shipped. `v0.1.0-rc.*` pre-release snapshots are
+    published as each bolt lands, for testing only — see
+    [Releases](https://github.com/senthilsweb/datagov/releases) for
+    the current tag.
 
 ## From a pre-release (fastest way to try it today)
 
@@ -40,13 +39,26 @@ cargo build --release
 ./target/release/datagov version
 ```
 
+```text
+datagov 0.1.0
+```
+
 ## Verify it worked
 
 ```bash
-datagov version
-datagov capabilities --output json
+./target/release/datagov version
+./target/release/datagov capabilities --output json
 ```
 
-`capabilities` lists every command the binary was actually built with
-— useful for confirming what's available in whatever snapshot you
-installed, since this project is still mid-construction.
+`capabilities` lists compiled commands and supported formats — useful
+for confirming what's available in whatever snapshot you installed.
+
+!!! note "Pre-release snapshots may lag this list"
+    `capabilities` is generated from a fixed list in the CLI source, so
+    it's only as current as the binary you installed. `v0.1.0-rc.5` and
+    earlier don't list `pii scan`/`pii recognizers` even though both
+    ship in that release — fixed on `main` for the next tag. Check
+    [Commands](commands.md) for the authoritative, always-current list.
+
+Next: [Commands](commands.md) for the full command reference, or back
+to [Getting Started](getting-started.md) for three 5-minute paths.
