@@ -19,11 +19,14 @@ default, agent- and CI-friendly.
 
 ## Status
 
-**Pre-implementation.** The project follows AI-DLC: specs before code.
-The first change — [`add-datagov-core-cli`](openspec/changes/add-datagov-core-cli/proposal.md)
-(Milestone 0.1: inspect, profile, sql parse/format/transpile, pii scan,
-report, cross-platform releases) — is **PROPOSED**, awaiting its
-inception gate.
+**Approved — construction starting.** The project follows AI-DLC: specs
+before code. The first change —
+[`add-datagov-core-cli`](openspec/changes/add-datagov-core-cli/proposal.md)
+(Milestone 0.1: inspect, profile, query, sql parse/format/transpile,
+pii scan, report, cross-platform releases) — passed its inception gate
+on 2026-07-26: DataFusion + sqlglot-rust locked, ten mandatory PII
+entity types, UUIDv7 run ids, Apache 2.0 license, manual `v*` tag
+releases.
 
 ## Where things live
 

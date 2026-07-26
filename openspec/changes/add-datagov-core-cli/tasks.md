@@ -4,22 +4,28 @@ Bolts follow AI-DLC: evals pinned before or alongside the code they gate.
 Nothing starts until the proposal's open questions are resolved and status
 moves to **APPROVED**.
 
-## Bolt 0 — Inception gate
+## Bolt 0 — Inception gate ✅ (passed 2026-07-26)
 
-- [ ] Spike: SQL engine (Q1) — parse/format/transpile a starter
-      conformance corpus with `sqlglot-rust` and `sqlparser-rs`; score
-      dialect coverage, fidelity, and maintenance risk; record the
-      resolution in design.md
-- [ ] Spike: profiling engine (Q2) — DataFusion vs Polars on the 1M-row
-      benchmark; correctness, speed, binary-size impact; record in
-      design.md
-- [ ] Resolve Q3 — mandatory PII entity set for 0.1 (owner)
-- [ ] Resolve Q4 — Arrow IPC in/out for 0.1 (owner)
-- [ ] Resolve Q5 — `datagov query` in/out (follows Q2; owner confirms)
-- [ ] Resolve Q6 — report id scheme (owner)
-- [ ] Resolve Q7 — license: keep MIT or switch to Apache 2.0 per PRD (owner)
-- [ ] Resolve Q8 — release versioning approach (owner)
-- [ ] Proposal status → **APPROVED**
+- [x] ~~Spike: SQL engine (Q1)~~ — **waived by owner decision
+      (2026-07-26): sqlglot-rust chosen directly.** The Bolt 4
+      conformance corpus remains the evidence check; fallback via
+      Correction + ADR if coverage fails
+- [x] ~~Spike: profiling engine (Q2)~~ — **waived by owner decision
+      (2026-07-26): DataFusion chosen directly.** Binary-size impact
+      measured with the Bolt 3 benchmarks
+- [x] Resolve Q3 — **resolved by owner (2026-07-26):** subset — email,
+      phone, IPv4, IPv6, URL, US SSN, credit card, UUID, MAC, US ZIP
+- [x] Resolve Q4 — **resolved by owner (2026-07-26):** Arrow IPC
+      deferred to the quality/schema change
+- [x] Resolve Q5 — **resolved by owner (2026-07-26):** `datagov query`
+      in scope (proposal revision 1)
+- [x] Resolve Q6 — **resolved by owner (2026-07-26):** UUIDv7 run.id +
+      SHA-256 content hash
+- [x] Resolve Q7 — **resolved by owner (2026-07-26):** Apache 2.0;
+      LICENSE replaced at the gate
+- [x] Resolve Q8 — **resolved by owner (2026-07-26):** manual `v*` tags
+      for 0.1
+- [x] Proposal status → **APPROVED** (2026-07-26)
 
 ## Bolt 1 — Workspace skeleton, envelope, exit codes
 
@@ -45,14 +51,20 @@ moves to **APPROVED**.
 - [ ] Golden tests for JSON envelopes on both fixtures; exit code 3/4
       integration tests
 
-## Bolt 3 — `profile`
+## Bolt 3 — `profile` + `query` (DataFusion)
 
-- [ ] Column statistics per PRD §10.2 on the chosen engine;
+- [ ] Column statistics per PRD §10.2 on DataFusion;
       `--columns`, `--sample`
 - [ ] Semantic-type inference + possible-identifier flagging
 - [ ] Golden tests; determinism eval (two runs → byte-identical
       envelopes modulo `run` block)
-- [ ] 1M-row benchmark wired into `benchmarks/` (SOFT criterion 8)
+- [ ] 1M-row benchmark wired into `benchmarks/` (SOFT criterion 8);
+      binary-size impact of DataFusion recorded alongside
+- [ ] `datagov query` *(revision 1)*: SQL over local CSV/Parquet,
+      JSON/table/CSV renderings, bounded output by default, `--limit`,
+      execution statistics in the envelope
+- [ ] Golden tests for `query` incl. bounded-output and `--limit`
+      behaviour; exit code 4 on unsupported input
 
 ## Bolt 4 — `sql parse | format | transpile`
 

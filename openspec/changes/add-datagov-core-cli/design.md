@@ -1,8 +1,10 @@
 # Design — `add-datagov-core-cli`
 
-> Skeleton, per PRD §21–§24. Sections marked **[spike]** are finalized
-> during Bolt 0 and recorded here (with a dated entry) before Bolt 1
-> starts. Nothing below overrides the proposal's open questions.
+> Per PRD §21–§24. Engine decisions locked at the inception gate
+> (owner, 2026-07-26) — see the resolved questions in proposal.md. The
+> planned Q1/Q2 spikes were waived by owner decision; the Bolt 4
+> conformance corpus and Bolt 3 benchmarks serve as the after-the-fact
+> evidence checks.
 
 ## Workspace
 
@@ -14,8 +16,10 @@ crates/
 │                     #   config resolution (PRD §28), tracing setup,
 │                     #   masking utilities (single implementation)
 ├── datagov-data/     # format detection, readers (csv / json / jsonl /
-│                     #   parquet), inspection, profiling  [spike: engine]
-├── datagov-sql/      # parse / format / transpile        [spike: parser]
+│                     #   parquet), inspection, profiling, file query —
+│                     #   engine: DataFusion (locked 2026-07-26)
+├── datagov-sql/      # parse / format / transpile —
+│                     #   engine: sqlglot-rust (locked 2026-07-26)
 ├── datagov-pii/      # recognizer registry, validators (Luhn, ABA,
 │                     #   mod-97, SSN), YAML recognizer loader, scanner
 └── datagov-report/   # consolidation + YAML/Markdown/terminal renderings
@@ -44,15 +48,18 @@ Rules:
   to 2; missing inputs to 3; unsupported format/dialect to 4; PII
   threshold to 12.
 
-## Key decisions pending Bolt 0 spikes
+## Key decisions (locked at the inception gate, 2026-07-26)
 
-| Decision | Options | Resolution |
-|---|---|---|
-| SQL engine | sqlglot-rust / sqlparser-rs / hybrid | **[spike]** |
-| Profiling engine | DataFusion / Polars | **[spike]** |
-| `query` command in 0.1 | with DataFusion / defer | follows Q2 |
-| PII entity set for 0.1 | PRD §10.8 list vs recommended subset | owner |
-| Report run id | UUIDv7 + content hash (recommended) | owner |
+| Decision | Resolution |
+|---|---|
+| SQL engine | **sqlglot-rust** — Bolt 4 conformance corpus is the evidence check; fallback via Correction + ADR if coverage fails |
+| Profiling/query engine | **DataFusion** — binary-size impact measured with Bolt 3 benchmarks |
+| `query` command in 0.1 | **In scope** (proposal revision 1) — bounded output, `--limit`, execution stats |
+| PII entity set for 0.1 | email, phone, IPv4, IPv6, URL, US_SSN, credit card (Luhn), UUID, MAC, US ZIP |
+| Arrow IPC | Deferred to the quality/schema change |
+| Report run id | UUIDv7 `run.id` + SHA-256 `input.content_hash` |
+| License | Apache 2.0 (LICENSE replaced at the gate) |
+| Release versioning | Manual `v*` tags for 0.1; release-plz revisited later |
 
 ## Fixtures and evals
 

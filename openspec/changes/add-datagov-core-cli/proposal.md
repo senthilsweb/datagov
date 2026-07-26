@@ -1,8 +1,19 @@
 # Proposal: Add `datagov` Core CLI (Milestone 0.1)
 
-> Status: **PROPOSED** — 2026-07-26. Awaiting the inception gate: owner
-> resolution of the open questions below, spike results for Q1/Q2, then
-> status → APPROVED.
+> Status: **APPROVED** — 2026-07-26. Inception gate passed: all eight
+> open questions resolved by the owner (see below). Construction starts
+> with Bolt 1.
+> Revision: 1 (owner, 2026-07-26: **`datagov query` pulled into scope**
+> — with DataFusion locked as the data engine (Q2), the embedded SQL
+> engine comes at near-zero marginal cost, so the PRD §38.6 question
+> resolves to "include": bounded output defaults and explicit `--limit`
+> from day one. Same gate: Q1/Q2 resolved by **owner decision without
+> the planned spikes** — sqlglot-rust and DataFusion chosen directly;
+> the Bolt 4 dialect-conformance corpus remains the evidence check, and
+> if sqlglot-rust coverage fails it, the fallback is logged as a dated
+> Correction + ADR, not a silent swap. License switched from MIT to
+> Apache 2.0 per PRD §39.)
+> (PROPOSED 2026-07-26)
 > Owner: @senthilsweb
 > Source: `docs/prd.md` §37 (Milestone 0.1), §33 (Phase 1 priorities)
 
@@ -39,6 +50,10 @@ surface, exactly as scoped in PRD §37:
   distinct, min/max/mean/median/stddev, quantiles, string lengths, top
   values, inferred semantic type, possible identifiers), `--columns`,
   `--sample`.
+- **`datagov query`** *(revision 1)* — SQL over local CSV/Parquet files
+  through the embedded DataFusion engine (PRD §10.3): JSON/table/CSV
+  output, bounded output by default, explicit `--limit`, query execution
+  statistics in the envelope.
 - **`datagov sql parse | format | transpile`** — PRD §10.4–10.6 over the
   priority dialects (ANSI, PostgreSQL, DuckDB, Spark, Databricks,
   Snowflake, BigQuery, Trino, MySQL, SQLite, T-SQL — final list confirmed
@@ -69,8 +84,8 @@ Everything PRD §37 excludes from 0.1: anonymization, Presidio, dbt,
 OpenLineage, plugins, MCP, remote execution, catalogs — plus the rest of
 Core that 0.1 defers: `quality check`, `schema infer|validate|diff`,
 `policy check`, `sql lineage`, and Homebrew/install-script distribution
-(GitHub Releases only for 0.1). `datagov query` is in/out per open
-question 5.
+(GitHub Releases only for 0.1). ~~`datagov query` is in/out per open
+question 5~~ — **in scope per revision 1.**
 
 ## Acceptance criteria
 
@@ -99,31 +114,42 @@ question 5.
    binaries, SPDX SBOM, and checksums, built entirely by CI.
 10. `cargo fmt --check`, `cargo clippy -D warnings`, and `cargo test`
     pass in CI on every bolt merge.
+11. *(revision 1)* `datagov query "SELECT state, COUNT(*) FROM
+    'examples/customers.parquet' GROUP BY state"` returns correct
+    results in JSON, table, and CSV renderings; output is bounded by
+    default; `--limit` is honoured; the envelope carries execution
+    statistics (HARD).
 
 ## Open questions for the inception gate
 
-1. **SQL engine** (PRD §38.1): `sqlglot-rust`, `sqlparser-rs`, or a
-   hybrid abstraction? Requires a spike: parse/format/transpile the
-   conformance corpus across the priority dialects and score coverage.
-2. **Profiling engine** (PRD §38.2): DataFusion or Polars as the primary
-   engine? Spike: profile the 1M-row benchmark both ways; compare
-   correctness, speed, and binary-size impact.
-3. **Mandatory PII entities for 0.1** (PRD §38.4): confirm the required
-   subset of the PRD §10.8 list (recommended: email, phone, IPv4/IPv6,
-   URL, US SSN, credit card, UUID, MAC, US ZIP; defer DOB candidates,
-   IBAN, routing number if validators need more time).
-4. **Arrow IPC in 0.1?** (PRD §38.5) — recommended: no; formats stay
-   CSV/TSV/JSON/JSONL/Parquet, Arrow arrives with the quality/schema
-   change.
-5. **Include `datagov query` in 0.1?** (PRD §38.6) — recommended: only
-   if Q2 lands on DataFusion (the engine is then already embedded);
-   otherwise defer.
-6. **Report IDs** (PRD §38.8): random UUID or content-derived?
-   Recommended: UUIDv7 for `run.id` plus a content hash in `input`.
-7. **License**: the repo was initialized with MIT but the PRD (§ header,
-   §39) recommends Apache 2.0. Owner to confirm before first release —
-   switching after external adoption is much harder.
-8. **Release versioning**: tag-driven releases with manual `v*` tags for
-   0.1, or Conventional-Commit-driven automation (release-plz) from the
-   start? Recommended: manual tags for 0.1, release-plz once the
+All resolved 2026-07-26 — gate passed.
+
+1. ~~**SQL engine** (PRD §38.1)~~ — **Resolved (owner, 2026-07-26):**
+   **`sqlglot-rust` directly**, chosen without the planned spike. The
+   Bolt 4 dialect-conformance corpus stays in place as the evidence
+   check; if coverage fails it, the fallback (`sqlparser-rs` or hybrid)
+   is adopted via a dated Correction + ADR.
+2. ~~**Profiling engine** (PRD §38.2)~~ — **Resolved (owner,
+   2026-07-26):** **DataFusion directly** (PRD §39 default), chosen
+   without the planned spike. Binary-size impact is measured and
+   published with the Bolt 3 benchmarks instead.
+3. ~~**Mandatory PII entities for 0.1**~~ — **Resolved (owner,
+   2026-07-26):** the recommended subset — **email, phone, IPv4, IPv6,
+   URL, US SSN, credit card (Luhn), UUID, MAC, US ZIP**. DOB candidates,
+   IBAN (mod-97), and ABA routing follow in the next Core change.
+4. ~~**Arrow IPC in 0.1?**~~ — **Resolved (owner, 2026-07-26):**
+   **deferred.** 0.1 formats are CSV/TSV/JSON/JSONL/Parquet; Arrow IPC
+   arrives with the quality/schema change.
+5. ~~**Include `datagov query` in 0.1?**~~ — **Resolved (owner,
+   2026-07-26):** **included** (revision 1) — DataFusion makes the
+   engine free; bounded output + `--limit` from day one.
+6. ~~**Report IDs**~~ — **Resolved (owner, 2026-07-26):** **UUIDv7 for
+   `run.id`** (time-ordered, unique per run) **plus SHA-256
+   `input.content_hash`** for reproducibility/provenance.
+7. ~~**License**~~ — **Resolved (owner, 2026-07-26):** **Apache 2.0**,
+   switched in this same gate (LICENSE replaced; was MIT from repo
+   initialization).
+8. ~~**Release versioning**~~ — **Resolved (owner, 2026-07-26):**
+   **manual `v*` tags for 0.1** driving the committed release workflow;
+   release-plz automation revisited as its own change once the
    workspace stabilizes.
