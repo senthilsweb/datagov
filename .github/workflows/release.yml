@@ -40,7 +40,12 @@ jobs:
             target: aarch64-apple-darwin
             required: true
           - artifact: datagov-darwin-x86_64
-            runner: macos-13
+            # Cross-compiled from the same arm64 runner as datagov-darwin-arm64,
+            # not a native macos-13 (Intel) runner — that pool queued with no
+            # capacity for 50+ minutes on two consecutive releases (2026-07-26).
+            # Xcode's toolchain on Apple Silicon runners supports both Apple
+            # targets natively, so this needs no separate machine.
+            runner: macos-14
             target: x86_64-apple-darwin
             required: false
           - artifact: datagov-linux-arm64
