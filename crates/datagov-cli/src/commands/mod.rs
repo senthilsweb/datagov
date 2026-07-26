@@ -14,6 +14,7 @@ pub mod capabilities;
 pub mod inspect;
 pub mod profile;
 pub mod query;
+pub mod sql;
 pub mod version;
 
 use crate::cli::OutputFormat;

@@ -1,0 +1,1 @@
+SELECT id, name FROM customers ORDER BY id FETCH FIRST 5 ROWS ONLY;

@@ -127,17 +127,38 @@ guard on `inspect`/`version`). 100 tests green (91 run + 1 informational
       variant rejected by every other command (`inspect`/`version`/
       `capabilities`), verified: `--output csv` on each → exit 2.
 
-## Bolt 4 — `sql parse | format | transpile`
+## Bolt 4 — `sql parse | format | transpile` ✅ (2026-07-26)
 
-- [ ] Dialect conformance corpus committed under `examples/sql/`
-      (per-dialect statements + expected transpilations)
-- [ ] `parse`: statement type, tables, columns, joins, filters, CTEs,
-      normalized AST in the envelope
-- [ ] `format`: stdout by default; file modified only with `--write`
-      (HARD eval: no `--write`, no mtime change)
-- [ ] `transpile` across the confirmed dialect list; lossy/unsupported
-      constructs reported explicitly in the envelope (HARD)
-- [ ] Exit code 4 on unsupported dialect; corpus round-trip suite green
+Built by a Sonnet 5 agent from `briefs/bolt-4.md`; architect-reviewed
+(gates re-run independently, hands-on verified: a real dialect
+transform T-SQL `TOP 10` → Postgres `LIMIT 10` not a passthrough, the
+lossy `QUALIFY` warning on stderr with stdout staying pipeable, the
+`--write` byte/mtime guard, and all three exit codes 2/3/4). 134 tests
+green (133 run + 1 pre-existing informational `#[ignore]`).
+
+The Phase 1 verification the brief mandated **succeeded** —
+`sqlglot-rust` v0.10.23 works across all 11 priority dialects,
+including genuine dialect-specific rewrites. The inception gate's
+waived spike effectively happened anyway, retroactively; no fallback
+to `sqlparser-rs`, no ADR needed (see proposal.md Q1 update and
+design.md for the full coverage matrix and the crate's own known
+fidelity gaps, none affecting the committed corpus).
+
+- [x] Dialect conformance corpus committed under `examples/sql/` — 3
+      statements × 11 priority dialects (33 files) + 5 cross-dialect
+      transpile pairs with byte-verified `expected.sql`
+- [x] `parse`: statement type, tables, columns, joins, filters, CTEs,
+      normalized AST (the crate's own serializable `Statement`, per
+      design.md's "expose the real parse result" guidance) in the
+      envelope
+- [x] `format`: stdout by default; file modified only with `--write`
+      (HARD eval verified: mtime and SHA-256 both unchanged without
+      `--write`)
+- [x] `transpile` across all 11 dialects; lossy/unsupported constructs
+      reported explicitly (HARD — verified: `QUALIFY` into ANSI
+      surfaces a warning naming the construct, never silent)
+- [x] Exit codes verified: 2 (malformed SQL), 3 (missing file), 4
+      (unknown dialect); corpus round-trip suite green
 
 ## Bolt 5 — `pii scan` + recognizers
 

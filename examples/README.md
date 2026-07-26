@@ -69,6 +69,31 @@ second fixture-sourcing round trip.
 Source: [`senthilsweb/claimwise`](https://github.com/senthilsweb/claimwise)
 `dbt-pipeline/seeds/healthcare_data/`.
 
+## `sql/` — dialect conformance corpus (Bolt 4)
+
+`sql/<dialect>/` (one directory per priority dialect: `ansi`,
+`postgres`, `duckdb`, `spark`, `databricks`, `snowflake`, `bigquery`,
+`trino`, `mysql`, `sqlite`, `tsql`) each contain three statements:
+`select_where.sql` and `join_group_by.sql` (identical, dialect-portable
+SQL across all 11 — the same statement genuinely parses/generates
+identically in every dialect) and `idiomatic.sql` (one real,
+dialect-specific construct per dialect — e.g. Snowflake/Databricks
+`QUALIFY`, T-SQL `TOP n`, MySQL/BigQuery backtick identifiers, DuckDB
+`PIVOT`, Spark `LATERAL VIEW`, Trino `APPROX_DISTINCT`, Postgres
+`ILIKE`, SQLite `ON CONFLICT ... DO NOTHING`, ANSI `FETCH FIRST n ROWS
+ONLY`). All 33 files parse successfully via `datagov sql parse` under
+their own dialect — see the Bolt 4 report for the full per-dialect
+coverage matrix, including constructs that parse but don't round-trip
+perfectly (Spark `LATERAL VIEW`'s output-column alias, for one).
+
+`sql/transpile/<pair-name>/{source.sql,expected.sql}` are five
+cross-dialect pairs (`spark_to_duckdb`, `tsql_to_postgres`,
+`snowflake_to_bigquery`, `mysql_to_ansi`, and the deliberately lossy
+`lossy_qualify_snowflake_to_ansi`) used as golden round-trip fixtures
+by `crates/datagov-cli/tests/sql.rs` — `expected.sql` is the exact,
+byte-verified output of `datagov sql transpile source.sql --from <a>
+--to <b>`.
+
 ## Regenerating
 
 These are one-time downloads, not build outputs — there is no

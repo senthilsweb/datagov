@@ -1,0 +1,1 @@
+SELECT id, ROW_NUMBER() OVER (PARTITION BY state ORDER BY id) AS rn FROM customers QUALIFY rn = 1;

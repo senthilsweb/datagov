@@ -1,0 +1,1 @@
+SELECT APPROX_DISTINCT(id) FROM customers;

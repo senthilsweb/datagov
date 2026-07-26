@@ -12,6 +12,7 @@ path = "src/main.rs"
 [dependencies]
 datagov-core = { workspace = true }
 datagov-data = { workspace = true }
+datagov-sql = { workspace = true }
 clap = { workspace = true }
 serde_json = { workspace = true }
 anyhow = { workspace = true }
@@ -28,3 +29,4 @@ serde_json = { workspace = true }
 uuid = { workspace = true }
 csv = { workspace = true }
 parquet = { workspace = true }
+tempfile = { workspace = true }

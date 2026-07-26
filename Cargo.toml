@@ -30,6 +30,7 @@ arrow-array = "58"
 arrow-schema = "58"
 tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
 regex = "1"
+sqlglot-rust = "0.10"
 
 # dev dependencies
 assert_cmd = "2"

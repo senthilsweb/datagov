@@ -123,6 +123,56 @@ only contract with the correct exit codes (3 missing / 4 unsupported)
 before execution. Architect-verified: `query` against
 `examples/customers.json` correctly exits 4.
 
+**Correction (2026-07-26, Bolt 4 Construction — inception gate Q1
+outcome):** the Phase-1 verification the brief required actually
+happened, retroactively covering the spike the owner waived at the
+inception gate. **`sqlglot-rust` v0.10.23** (crates.io,
+`protegrity/sql-glot-rust`) is real, maintained, and confirmed working
+across all 11 priority dialects — no fallback to `sqlparser-rs`
+needed, no ADR required. Architect-verified independently: a genuine
+dialect transform (T-SQL `TOP 10` → Postgres `LIMIT 10`, not a literal
+passthrough) and all 5 committed transpile golden pairs byte-match a
+fresh build.
+
+**Correction (2026-07-26, Bolt 4 Construction):** the first
+`transpile()` implementation called the crate's `generate()` on the
+already-parsed AST directly, which skips the crate's own
+`dialects::transform` step — the part that actually rewrites
+`TOP n` ↔ `LIMIT n` ↔ `FETCH FIRST n ROWS ONLY` and similar
+dialect-specific rewrites. Caught by the implementer's own stdin
+integration test before this reached review. Fixed by calling the
+crate's `transpile()` entry point for the output SQL (accepting one
+extra re-parse), while still using the separately-parsed pre-transform
+AST for lossy-construct warning detection. A regression test pins this.
+
+**Decision (2026-07-26, Bolt 4 Construction):** `sql format`'s
+`--output json` envelope shape (`extensions.sql_format: {dialect,
+output_sql, written}`) and putting `input.uri`/`content_hash` on
+`parse`/`format`/`transpile` (unlike `query`, which omits `input`
+since it can span zero-to-many files) both follow `inspect`/`profile`'s
+existing precedent, not `query`'s. Transpile warnings render to stderr
+on the human path (stdout stays pipeable, matching `query`'s CSV-bare
+precedent) — architect-verified: `stdout` is exactly the transpiled
+SQL, `stderr` carries the warning, on the same lossy `QUALIFY` case
+used for the golden test. Accepted.
+
+**Known limitation (2026-07-26, Bolt 4 Construction — not a datagov
+defect, documented for transparency):** `sqlglot-rust` has its own
+parser/generator fidelity gaps independent of any dialect target —
+observed even regenerating in the *same* source dialect: Spark
+`LATERAL VIEW EXPLODE(...) AS alias` loses the column alias
+(architect-reproduced: `AS tag` vanishes, the clause is even rewritten
+to a `CROSS JOIN` form); SQLite `GLOB` is silently coerced to `LIKE`
+(changes case-sensitivity/wildcard semantics); SQLite
+`INSERT OR REPLACE` loses its conflict clause; `UNNEST(...) AS
+t(cols...)` loses its column-alias list. None of these constructs are
+used in the committed corpus. `datagov-sql::warnings` implements its
+own small, explicitly non-exhaustive capability matrix for
+`QUALIFY`/`PIVOT`/`UNPIVOT` since the crate has no general warnings API
+of its own (only a date/time-format-specific one) — this covers this
+bolt's corpus, not a claim of complete dialect-compatibility knowledge.
+Revisit if a future change needs any of the excluded constructs.
+
 ## Fixtures and evals
 
 **Decision (2026-07-26, pre-Bolt-2 planning):** rather than a

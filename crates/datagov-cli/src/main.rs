@@ -3,7 +3,8 @@
 //!
 //! 1. Parses global flags (`--output`, `--quiet`, `--verbose`) and
 //!    subcommands (`version`, `capabilities`, `inspect`, `profile`,
-//!    `query`) via clap derive (`cli::Cli`).
+//!    `query`, `sql parse|format|transpile`) via clap derive
+//!    (`cli::Cli`).
 //! 2. Initializes the shared `tracing` subscriber via
 //!    `datagov_core::logging::init` before dispatching any command.
 //! 3. Dispatches to one thin command function per subcommand
@@ -23,7 +24,7 @@ mod cli;
 mod commands;
 
 use clap::Parser;
-use cli::{Cli, Command, OutputFormat};
+use cli::{Cli, Command, OutputFormat, SqlAction};
 
 fn main() {
     let cli = Cli::parse();
@@ -50,6 +51,19 @@ fn main() {
             cli.output,
         ),
         Command::Query { sql, limit } => commands::query::run(&sql, limit, cli.output),
+        Command::Sql { action } => match action {
+            SqlAction::Parse { path, dialect } => {
+                commands::sql::run_parse(&path, dialect.as_deref(), cli.output)
+            }
+            SqlAction::Format {
+                path,
+                dialect,
+                write,
+            } => commands::sql::run_format(&path, dialect.as_deref(), write, cli.output),
+            SqlAction::Transpile { path, from, to } => {
+                commands::sql::run_transpile(&path, &from, &to, cli.output)
+            }
+        },
     };
 
     if let Err(err) = result {

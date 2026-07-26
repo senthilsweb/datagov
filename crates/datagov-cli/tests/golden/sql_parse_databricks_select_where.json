@@ -1,0 +1,121 @@
+{
+  "schema_version": "1.0",
+  "tool": {
+    "name": "datagov",
+    "version": "0.1.0"
+  },
+  "run": {
+    "id": "normalized",
+    "started_at": "normalized",
+    "completed_at": "normalized",
+    "duration_ms": 0
+  },
+  "input": {
+    "uri": "<uri>",
+    "format": "sql",
+    "content_hash": "sha256:030dde31a94dfab54b71753d5707e71a7c7d5b2e5efc03a4221148839e20707d"
+  },
+  "summary": {
+    "status": "success",
+    "errors": 0,
+    "warnings": 0,
+    "info": 0
+  },
+  "extensions": {
+    "sql_parse": {
+      "ast": {
+        "Select": {
+          "columns": [
+            {
+              "Expr": {
+                "alias": null,
+                "alias_quote_style": "None",
+                "expr": {
+                  "Column": {
+                    "name": "id",
+                    "quote_style": "None",
+                    "table": null,
+                    "table_quote_style": "None"
+                  }
+                }
+              }
+            },
+            {
+              "Expr": {
+                "alias": null,
+                "alias_quote_style": "None",
+                "expr": {
+                  "Column": {
+                    "name": "name",
+                    "quote_style": "None",
+                    "table": null,
+                    "table_quote_style": "None"
+                  }
+                }
+              }
+            }
+          ],
+          "ctes": [],
+          "distinct": false,
+          "fetch_first": null,
+          "from": {
+            "source": {
+              "Table": {
+                "alias": null,
+                "alias_quote_style": "None",
+                "catalog": null,
+                "name": "customers",
+                "name_quote_style": "None",
+                "schema": null
+              }
+            }
+          },
+          "group_by": [],
+          "having": null,
+          "joins": [],
+          "limit": null,
+          "offset": null,
+          "order_by": [],
+          "qualify": null,
+          "top": null,
+          "where_clause": {
+            "BinaryOp": {
+              "left": {
+                "Column": {
+                  "name": "state",
+                  "quote_style": "None",
+                  "table": null,
+                  "table_quote_style": "None"
+                }
+              },
+              "op": "Eq",
+              "right": {
+                "StringLiteral": "CA"
+              }
+            }
+          },
+          "window_definitions": []
+        }
+      },
+      "columns": [
+        "id",
+        "name"
+      ],
+      "ctes": [],
+      "dialect": "databricks",
+      "filters": [
+        "state = 'CA'"
+      ],
+      "group_by": [],
+      "joins": [],
+      "order_by": [],
+      "statement_type": "select",
+      "tables": [
+        {
+          "alias": null,
+          "name": "customers"
+        }
+      ]
+    }
+  }
+}

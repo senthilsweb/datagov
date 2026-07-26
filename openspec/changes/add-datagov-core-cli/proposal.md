@@ -129,6 +129,14 @@ All resolved 2026-07-26 — gate passed.
    Bolt 4 dialect-conformance corpus stays in place as the evidence
    check; if coverage fails it, the fallback (`sqlparser-rs` or hybrid)
    is adopted via a dated Correction + ADR.
+   **Update (Bolt 4 Construction, 2026-07-26): the waived spike
+   happened anyway**, structured as a mandatory Phase 1 inside the
+   Bolt 4 brief before any implementation began. `sqlglot-rust` v0.10.23
+   verified working across all 11 priority dialects, including genuine
+   dialect-specific transforms (not literal passthroughs) — the
+   fallback was never invoked, no ADR needed. See design.md for the
+   full coverage matrix and the crate's own known fidelity gaps
+   (documented, not blocking — none affect the committed corpus).
 2. ~~**Profiling engine** (PRD §38.2)~~ — **Resolved (owner,
    2026-07-26):** **DataFusion directly** (PRD §39 default), chosen
    without the planned spike. Binary-size impact is measured and

@@ -8,7 +8,12 @@
 //!    (Bolt 1), `inspect` (Bolt 2) — `datagov inspect <path|-> [--type
 //!    <csv|tsv|json|jsonl|parquet>]` — and (Bolt 3) `profile` (`datagov
 //!    profile <path> [--type ..] [--columns a,b] [--sample n]`) and
-//!    `query` (`datagov query "<sql>" [--limit n]`).
+//!    `query` (`datagov query "<sql>" [--limit n]`). Bolt 4 adds `sql`,
+//!    a nested subcommand (`SqlAction`): `parse <path|-> [--dialect
+//!    <name>]`, `format <path|-> [--dialect <name>] [--write]`,
+//!    `transpile <path|-> --from <dialect> --to <dialect>`. All three
+//!    default `--dialect` to `datagov_sql::DEFAULT_DIALECT` ("ansi")
+//!    when omitted.
 //! 3. Defines `OutputFormat`, the clap-facing rendering choice (`json` |
 //!    `table` | `csv`, default `table`). `csv` is Bolt 3, accepted only
 //!    by `query` — every other command rejects it explicitly rather than
@@ -81,6 +86,53 @@ pub enum Command {
         /// `datagov_data::query::DEFAULT_QUERY_LIMIT`).
         #[arg(long, value_name = "N")]
         limit: Option<usize>,
+    },
+    /// Parse, format, or transpile SQL across the 11 priority dialects
+    /// (ANSI, PostgreSQL, DuckDB, Spark, Databricks, Snowflake,
+    /// BigQuery, Trino, MySQL, SQLite, T-SQL), via `datagov-sql`
+    /// (`sqlglot-rust`).
+    Sql {
+        #[command(subcommand)]
+        action: SqlAction,
+    },
+}
+
+#[derive(Subcommand, Debug)]
+pub enum SqlAction {
+    /// Parse a SQL statement: statement type, tables, columns, joins,
+    /// filters, grouping, ordering, CTEs, and the full AST.
+    Parse {
+        /// Path to a `.sql` file, or `-` to read from stdin.
+        path: String,
+        /// The source dialect (default: `ansi`).
+        #[arg(long, value_name = "DIALECT")]
+        dialect: Option<String>,
+    },
+    /// Pretty-print a SQL statement. Writes to stdout by default; the
+    /// source file is modified only when `--write` is given.
+    Format {
+        /// Path to a `.sql` file, or `-` to read from stdin (`--write`
+        /// is not compatible with stdin — there is no source file to
+        /// modify).
+        path: String,
+        /// The source dialect (default: `ansi`).
+        #[arg(long, value_name = "DIALECT")]
+        dialect: Option<String>,
+        /// Modify `path` in place with the formatted SQL instead of
+        /// printing to stdout.
+        #[arg(long)]
+        write: bool,
+    },
+    /// Transpile a SQL statement from one dialect to another.
+    Transpile {
+        /// Path to a `.sql` file, or `-` to read from stdin.
+        path: String,
+        /// The source dialect.
+        #[arg(long)]
+        from: String,
+        /// The target dialect.
+        #[arg(long)]
+        to: String,
     },
 }
 

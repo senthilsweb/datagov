@@ -1571,10 +1571,12 @@ dependencies = [
  "csv",
  "datagov-core",
  "datagov-data",
+ "datagov-sql",
  "jsonschema",
  "parquet 59.1.0",
  "predicates",
  "serde_json",
+ "tempfile",
  "tokio",
  "tracing",
  "uuid",
@@ -1626,6 +1628,12 @@ version = "0.1.0"
 [[package]]
 name = "datagov-sql"
 version = "0.1.0"
+dependencies = [
+ "datagov-core",
+ "serde",
+ "serde_json",
+ "sqlglot-rust",
+]
 
 [[package]]
 name = "deranged"
@@ -3594,6 +3602,18 @@ checksum = "c3d1e2c7f27f8d4cb10542a02c49005dbd6e93095799d6f3be745fae9f8fedd4"
 dependencies = [
  "libc",
  "windows-sys 0.61.2",
+]
+
+[[package]]
+name = "sqlglot-rust"
+version = "0.10.23"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8b0961addb1ecb18392491d123569a913c6189f9b0c651bf79f7f86119e5365c"
+dependencies = [
+ "log",
+ "serde",
+ "serde_json",
+ "thiserror",
 ]
 
 [[package]]
