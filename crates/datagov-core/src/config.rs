@@ -3,7 +3,9 @@
 //! 1. Defines `Config`, the Bolt 1 configuration surface: `output`
 //!    (`OutputFormat`) and `threads`. Deliberately small — the precedence
 //!    chain is what this module proves out, not the field surface.
-//! 2. Defines `OutputFormat` (`json` | `table`).
+//! 2. Defines `OutputFormat` (`json` | `table` | `csv`, the last added in
+//!    Bolt 3 for `datagov query`; kept in lock-step with the clap-facing
+//!    `datagov_cli::cli::OutputFormat` used for actual command dispatch).
 //! 3. Implements `load`, the precedence chain from PRD §28: CLI flags are
 //!    applied by the caller on top of the returned `Config`; this loader
 //!    resolves, first hit wins per field, in the order: environment
@@ -31,6 +33,10 @@ use std::str::FromStr;
 pub enum OutputFormat {
     Json,
     Table,
+    /// Added in Bolt 3 for `datagov query`; every other command rejects
+    /// it explicitly (`DatagovError::InvalidArgs`) rather than silently
+    /// falling back to table rendering.
+    Csv,
 }
 
 impl FromStr for OutputFormat {
@@ -40,6 +46,7 @@ impl FromStr for OutputFormat {
         match s.to_ascii_lowercase().as_str() {
             "json" => Ok(OutputFormat::Json),
             "table" => Ok(OutputFormat::Table),
+            "csv" => Ok(OutputFormat::Csv),
             other => Err(format!("unknown output format: {other}")),
         }
     }

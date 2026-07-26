@@ -96,6 +96,33 @@ not yet exercised against a decimal- or date-typed Parquet column.
 Revisit when a fixture with those types is introduced. Accepted by the
 architect.
 
+**Correction (2026-07-26, Bolt 3 Construction):** DataFusion's
+`AVG`/`STDDEV`/`APPROX_PERCENTILE_CONT` aggregates are not perfectly
+bit-reproducible run-to-run on an unchanged input (streaming
+floating-point accumulation, non-associative addition) — observed
+differences in the last 1-2 ULPs even with a single target partition.
+`profile.rs::round_stat` rounds `mean`/`median`/`stddev`/`quantiles`/
+`string_length.mean` to 9 decimal places before they enter the
+envelope, which absorbs the noise; verified stable across 20+ repeated
+runs. The brief's "byte-identical envelopes" requirement holds at this
+precision, not at full `f64` precision — a correction to an implicit
+assumption in the brief, not a spec violation (9 decimal places is far
+beyond any real governance use of these statistics). Accepted by the
+architect; independently re-verified (two runs of `datagov profile
+examples/customers.parquet`, `run` block excepted, byte-identical).
+
+**Decision (2026-07-26, Bolt 3 Construction):** for `datagov query`,
+quoted file-path references in the SQL text are resolved via an
+explicit regex scan + registration (design's "approach 2"), **not**
+DataFusion 54.1.0's native `enable_url_table()` — verified working,
+but it silently pulls in JSON datasource support, which would let a
+query against `examples/customers.json` (a JSON *array*, explicitly
+out of scope per PRD §10.3) succeed instead of failing with
+`UnsupportedInput`. The explicit scan is what enforces the CSV/Parquet-
+only contract with the correct exit codes (3 missing / 4 unsupported)
+before execution. Architect-verified: `query` against
+`examples/customers.json` correctly exits 4.
+
 ## Fixtures and evals
 
 **Decision (2026-07-26, pre-Bolt-2 planning):** rather than a

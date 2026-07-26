@@ -13,6 +13,8 @@
 //!    Parquet row-group/compression summary line when applicable, and a
 //!    small already-masked sample-rows table.
 //! 4. `--output json`: the full report envelope.
+//! 5. `--output csv` is rejected (exit 2) via `commands::reject_csv` —
+//!    only `query` supports CSV.
 
 use std::path::PathBuf;
 
@@ -21,8 +23,11 @@ use datagov_core::DatagovError;
 use datagov_core::report::{DataType, Input, ReportBuilder, Sections};
 
 use crate::cli::OutputFormat;
+use crate::commands::reject_csv;
 
 pub fn run(path: &str, type_flag: Option<&str>, output: OutputFormat) -> Result<(), DatagovError> {
+    reject_csv(output, "inspect")?;
+
     let format = datagov_data::format::detect(path, type_flag)?;
 
     let (source, content_hash) = if path == "-" {
@@ -64,6 +69,7 @@ pub fn run(path: &str, type_flag: Option<&str>, output: OutputFormat) -> Result<
                 .map_err(|e| DatagovError::internal(format!("failed to render report: {e}")))?;
             println!("{json}");
         }
+        OutputFormat::Csv => unreachable!("reject_csv already returned an error"),
     }
 
     Ok(())

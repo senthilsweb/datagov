@@ -7,8 +7,11 @@
 //! 2. Defines the `dataset` section (PRD §10.1, populated starting
 //!    Bolt 2): `DatasetSection`, `ColumnSchema`, `DataType`,
 //!    `ParquetInfo`, `RowGroupInfo`.
-//! 3. Defines one empty `#[non_exhaustive]` placeholder struct per
-//!    remaining PRD §23 domain key (`ProfileSection`, `PiiSection`,
+//! 3. Defines the `profile` section (PRD §10.2, populated starting
+//!    Bolt 3): `ProfileSection`, `ColumnProfile`, `StringLengthStats`,
+//!    `TopValue`, computed by `datagov_data::profile` via DataFusion
+//!    aggregate SQL. Defines one empty `#[non_exhaustive]` placeholder
+//!    struct per remaining PRD §23 domain key (`PiiSection`,
 //!    `QualitySection`, `SchemaSection`, `LineageSection`,
 //!    `PolicySection`, `EvidenceSection`); later bolts flesh these out.
 //! 4. Provides `content_hash_sha256`, a SHA-256 file-hashing helper used
@@ -223,10 +226,85 @@ pub struct RowGroupInfo {
     pub uncompressed_size_bytes: i64,
 }
 
-empty_section!(
-    /// Placeholder for the `profile` section; populated starting Bolt 3.
-    ProfileSection
-);
+/// The `profile` section (PRD §10.2), populated by `datagov profile` via
+/// DataFusion aggregate SQL (`datagov_data::profile`).
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+pub struct ProfileSection {
+    /// `Some(n)` when `--sample n` bounded profiling to the first `n`
+    /// rows in source order (deterministic, not a random sample);
+    /// `None` when the full dataset was profiled.
+    pub sample_size: Option<u64>,
+    pub columns: Vec<ColumnProfile>,
+}
+
+/// Per-column statistics for one profiled column. Numeric-only fields
+/// (`mean`, `median`, `stddev`, `quantiles`) and the string-only
+/// `string_length` are `None` when they don't apply to `data_type`,
+/// mirroring how `DatasetSection::parquet` is `None` for non-Parquet
+/// formats.
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+pub struct ColumnProfile {
+    pub name: String,
+    pub data_type: DataType,
+    pub row_count: u64,
+    pub null_count: u64,
+    pub null_percentage: f64,
+    pub distinct_count: u64,
+    pub uniqueness_percentage: f64,
+    /// Masked (via `datagov_core::mask::Masked`) when the column is
+    /// heuristically sensitive.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub min: Option<serde_json::Value>,
+    /// Masked (via `datagov_core::mask::Masked`) when the column is
+    /// heuristically sensitive.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub max: Option<serde_json::Value>,
+    /// Numeric columns only.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub mean: Option<f64>,
+    /// Numeric columns only; also present as `"p50"` in `quantiles`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub median: Option<f64>,
+    /// Numeric columns only.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stddev: Option<f64>,
+    /// Numeric columns only: `"p25"`..`"p99"`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub quantiles: Option<std::collections::BTreeMap<String, f64>>,
+    /// String columns only.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub string_length: Option<StringLengthStats>,
+    /// Masked (via `datagov_core::mask::Masked`) when the column is
+    /// heuristically sensitive.
+    pub top_values: Vec<TopValue>,
+    /// Heuristic bucket (not ML/LLM-derived) — a matched
+    /// `datagov_core::sensitivity` fragment name (e.g. `"email"`), else
+    /// `"identifier"` when `possible_identifier`, else a coarse bucket by
+    /// `data_type` (`"numeric"`, `"boolean"`, `"text"`).
+    pub semantic_type: String,
+    /// `true` when `distinct_count == row_count && row_count > 0`, or the
+    /// column name matches `^(id|.*_id|.*id)$` (case-insensitive).
+    pub possible_identifier: bool,
+}
+
+/// String-length summary for a `DataType::String` column.
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+pub struct StringLengthStats {
+    pub min: u64,
+    pub max: u64,
+    pub mean: f64,
+}
+
+/// One entry in a column's top-values list. `value` is masked (via
+/// `datagov_core::mask::Masked`, rendered as a JSON string) when the
+/// column is heuristically sensitive.
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+pub struct TopValue {
+    pub value: serde_json::Value,
+    pub count: u64,
+    pub percentage: f64,
+}
+
 empty_section!(
     /// Placeholder for the `pii` section; populated starting Bolt 5.
     PiiSection

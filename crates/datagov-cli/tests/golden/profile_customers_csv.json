@@ -1,0 +1,844 @@
+{
+  "schema_version": "1.0",
+  "tool": {
+    "name": "datagov",
+    "version": "0.1.0"
+  },
+  "run": {
+    "id": "normalized",
+    "started_at": "normalized",
+    "completed_at": "normalized",
+    "duration_ms": 0
+  },
+  "input": {
+    "uri": "<uri>",
+    "format": "csv",
+    "content_hash": "sha256:51e0ec1eab2be76741a34aa79cb68f28df6c4031451be7d7e55b6ddff6d462d2"
+  },
+  "summary": {
+    "status": "success",
+    "errors": 0,
+    "warnings": 0,
+    "info": 0
+  },
+  "profile": {
+    "sample_size": null,
+    "columns": [
+      {
+        "name": "userid",
+        "data_type": "integer",
+        "row_count": 2000,
+        "null_count": 0,
+        "null_percentage": 0.0,
+        "distinct_count": 2000,
+        "uniqueness_percentage": 100.0,
+        "min": 1,
+        "max": 2000,
+        "mean": 1000.5,
+        "median": 1000.375,
+        "stddev": 577.494588719,
+        "quantiles": {
+          "p25": 500.560344828,
+          "p50": 1000.375,
+          "p75": 1500.422413793,
+          "p90": 1800.5,
+          "p99": 1980.375
+        },
+        "top_values": [
+          {
+            "value": 1,
+            "count": 1,
+            "percentage": 0.05
+          },
+          {
+            "value": 2,
+            "count": 1,
+            "percentage": 0.05
+          },
+          {
+            "value": 3,
+            "count": 1,
+            "percentage": 0.05
+          },
+          {
+            "value": 4,
+            "count": 1,
+            "percentage": 0.05
+          },
+          {
+            "value": 5,
+            "count": 1,
+            "percentage": 0.05
+          },
+          {
+            "value": 6,
+            "count": 1,
+            "percentage": 0.05
+          },
+          {
+            "value": 7,
+            "count": 1,
+            "percentage": 0.05
+          },
+          {
+            "value": 8,
+            "count": 1,
+            "percentage": 0.05
+          },
+          {
+            "value": 9,
+            "count": 1,
+            "percentage": 0.05
+          },
+          {
+            "value": 10,
+            "count": 1,
+            "percentage": 0.05
+          }
+        ],
+        "semantic_type": "identifier",
+        "possible_identifier": true
+      },
+      {
+        "name": "username",
+        "data_type": "string",
+        "row_count": 2000,
+        "null_count": 0,
+        "null_percentage": 0.0,
+        "distinct_count": 2000,
+        "uniqueness_percentage": 100.0,
+        "min": "AAK59WWX",
+        "max": "ZZM41GNO",
+        "string_length": {
+          "min": 8,
+          "max": 8,
+          "mean": 8.0
+        },
+        "top_values": [
+          {
+            "value": "AAK59WWX",
+            "count": 1,
+            "percentage": 0.05
+          },
+          {
+            "value": "ABA89DHM",
+            "count": 1,
+            "percentage": 0.05
+          },
+          {
+            "value": "ABD41IKX",
+            "count": 1,
+            "percentage": 0.05
+          },
+          {
+            "value": "ABH50NPY",
+            "count": 1,
+            "percentage": 0.05
+          },
+          {
+            "value": "ABJ62WQQ",
+            "count": 1,
+            "percentage": 0.05
+          },
+          {
+            "value": "ABS88QAU",
+            "count": 1,
+            "percentage": 0.05
+          },
+          {
+            "value": "ABZ92FWV",
+            "count": 1,
+            "percentage": 0.05
+          },
+          {
+            "value": "ABZ94RSL",
+            "count": 1,
+            "percentage": 0.05
+          },
+          {
+            "value": "ADV32RXI",
+            "count": 1,
+            "percentage": 0.05
+          },
+          {
+            "value": "ADV37UJZ",
+            "count": 1,
+            "percentage": 0.05
+          }
+        ],
+        "semantic_type": "identifier",
+        "possible_identifier": true
+      },
+      {
+        "name": "firstname",
+        "data_type": "string",
+        "row_count": 2000,
+        "null_count": 0,
+        "null_percentage": 0.0,
+        "distinct_count": 961,
+        "uniqueness_percentage": 48.05,
+        "min": "Aaron",
+        "max": "acqueline",
+        "string_length": {
+          "min": 2,
+          "max": 11,
+          "mean": 5.779
+        },
+        "top_values": [
+          {
+            "value": "Arden",
+            "count": 7,
+            "percentage": 0.35000000000000003
+          },
+          {
+            "value": "Jordan",
+            "count": 7,
+            "percentage": 0.35000000000000003
+          },
+          {
+            "value": "Renee",
+            "count": 7,
+            "percentage": 0.35000000000000003
+          },
+          {
+            "value": "Carla",
+            "count": 6,
+            "percentage": 0.3
+          },
+          {
+            "value": "Deborah",
+            "count": 6,
+            "percentage": 0.3
+          },
+          {
+            "value": "Ila",
+            "count": 6,
+            "percentage": 0.3
+          },
+          {
+            "value": "Jeremy",
+            "count": 6,
+            "percentage": 0.3
+          },
+          {
+            "value": "Kitra",
+            "count": 6,
+            "percentage": 0.3
+          },
+          {
+            "value": "Zenia",
+            "count": 6,
+            "percentage": 0.3
+          },
+          {
+            "value": "Aidan",
+            "count": 5,
+            "percentage": 0.25
+          }
+        ],
+        "semantic_type": "text",
+        "possible_identifier": false
+      },
+      {
+        "name": "lastname",
+        "data_type": "string",
+        "row_count": 2000,
+        "null_count": 0,
+        "null_percentage": 0.0,
+        "distinct_count": 860,
+        "uniqueness_percentage": 43.0,
+        "min": "Abbott",
+        "max": "Zimmerman",
+        "string_length": {
+          "min": 2,
+          "max": 11,
+          "mean": 6.186
+        },
+        "top_values": [
+          {
+            "value": "Joseph",
+            "count": 7,
+            "percentage": 0.35000000000000003
+          },
+          {
+            "value": "Nichols",
+            "count": 7,
+            "percentage": 0.35000000000000003
+          },
+          {
+            "value": "Ashley",
+            "count": 6,
+            "percentage": 0.3
+          },
+          {
+            "value": "Bradley",
+            "count": 6,
+            "percentage": 0.3
+          },
+          {
+            "value": "Ellis",
+            "count": 6,
+            "percentage": 0.3
+          },
+          {
+            "value": "Erickson",
+            "count": 6,
+            "percentage": 0.3
+          },
+          {
+            "value": "Hogan",
+            "count": 6,
+            "percentage": 0.3
+          },
+          {
+            "value": "Levine",
+            "count": 6,
+            "percentage": 0.3
+          },
+          {
+            "value": "Mckinney",
+            "count": 6,
+            "percentage": 0.3
+          },
+          {
+            "value": "Rush",
+            "count": 6,
+            "percentage": 0.3
+          }
+        ],
+        "semantic_type": "text",
+        "possible_identifier": false
+      },
+      {
+        "name": "city",
+        "data_type": "string",
+        "row_count": 2000,
+        "null_count": 0,
+        "null_percentage": 0.0,
+        "distinct_count": 880,
+        "uniqueness_percentage": 44.0,
+        "min": "Aberdeen",
+        "max": "Zanesville",
+        "string_length": {
+          "min": 3,
+          "max": 22,
+          "mean": 8.955
+        },
+        "top_values": [
+          {
+            "value": "Charleston",
+            "count": 12,
+            "percentage": 0.6
+          },
+          {
+            "value": "Brunswick",
+            "count": 9,
+            "percentage": 0.44999999999999996
+          },
+          {
+            "value": "Omaha",
+            "count": 8,
+            "percentage": 0.4
+          },
+          {
+            "value": "Hidden Hills",
+            "count": 7,
+            "percentage": 0.35000000000000003
+          },
+          {
+            "value": "Lock Haven",
+            "count": 7,
+            "percentage": 0.35000000000000003
+          },
+          {
+            "value": "Bowling Green",
+            "count": 6,
+            "percentage": 0.3
+          },
+          {
+            "value": "Brea",
+            "count": 6,
+            "percentage": 0.3
+          },
+          {
+            "value": "Muncie",
+            "count": 6,
+            "percentage": 0.3
+          },
+          {
+            "value": "Olean",
+            "count": 6,
+            "percentage": 0.3
+          },
+          {
+            "value": "Springfield",
+            "count": 6,
+            "percentage": 0.3
+          }
+        ],
+        "semantic_type": "text",
+        "possible_identifier": false
+      },
+      {
+        "name": "state",
+        "data_type": "string",
+        "row_count": 2000,
+        "null_count": 0,
+        "null_percentage": 0.0,
+        "distinct_count": 63,
+        "uniqueness_percentage": 3.15,
+        "min": "AB",
+        "max": "YT",
+        "string_length": {
+          "min": 2,
+          "max": 2,
+          "mean": 2.0
+        },
+        "top_values": [
+          {
+            "value": "YT",
+            "count": 86,
+            "percentage": 4.3
+          },
+          {
+            "value": "AB",
+            "count": 85,
+            "percentage": 4.25
+          },
+          {
+            "value": "NB",
+            "count": 85,
+            "percentage": 4.25
+          },
+          {
+            "value": "NL",
+            "count": 84,
+            "percentage": 4.2
+          },
+          {
+            "value": "NS",
+            "count": 82,
+            "percentage": 4.1000000000000005
+          },
+          {
+            "value": "NU",
+            "count": 80,
+            "percentage": 4.0
+          },
+          {
+            "value": "SK",
+            "count": 78,
+            "percentage": 3.9
+          },
+          {
+            "value": "BC",
+            "count": 76,
+            "percentage": 3.8
+          },
+          {
+            "value": "NT",
+            "count": 76,
+            "percentage": 3.8
+          },
+          {
+            "value": "PE",
+            "count": 75,
+            "percentage": 3.75
+          }
+        ],
+        "semantic_type": "text",
+        "possible_identifier": false
+      },
+      {
+        "name": "email",
+        "data_type": "string",
+        "row_count": 2000,
+        "null_count": 0,
+        "null_percentage": 0.0,
+        "distinct_count": 2000,
+        "uniqueness_percentage": 100.0,
+        "min": "Ae\u2026rg",
+        "max": "vu\u2026rg",
+        "string_length": {
+          "min": 8,
+          "max": 55,
+          "mean": 27.5245
+        },
+        "top_values": [
+          {
+            "value": "Ae\u2026rg",
+            "count": 1,
+            "percentage": 0.05
+          },
+          {
+            "value": "Ae\u2026om",
+            "count": 1,
+            "percentage": 0.05
+          },
+          {
+            "value": "Ae\u2026ca",
+            "count": 1,
+            "percentage": 0.05
+          },
+          {
+            "value": "Ae\u2026rg",
+            "count": 1,
+            "percentage": 0.05
+          },
+          {
+            "value": "Ae\u2026ca",
+            "count": 1,
+            "percentage": 0.05
+          },
+          {
+            "value": "Ae\u2026du",
+            "count": 1,
+            "percentage": 0.05
+          },
+          {
+            "value": "Ae\u2026ca",
+            "count": 1,
+            "percentage": 0.05
+          },
+          {
+            "value": "Ae\u2026du",
+            "count": 1,
+            "percentage": 0.05
+          },
+          {
+            "value": "Ae\u2026rg",
+            "count": 1,
+            "percentage": 0.05
+          },
+          {
+            "value": "Ae\u2026du",
+            "count": 1,
+            "percentage": 0.05
+          }
+        ],
+        "semantic_type": "email",
+        "possible_identifier": true
+      },
+      {
+        "name": "phone",
+        "data_type": "string",
+        "row_count": 2000,
+        "null_count": 0,
+        "null_percentage": 0.0,
+        "distinct_count": 2000,
+        "uniqueness_percentage": 100.0,
+        "min": "(1\u202675",
+        "max": "(9\u202655",
+        "string_length": {
+          "min": 14,
+          "max": 14,
+          "mean": 14.0
+        },
+        "top_values": [
+          {
+            "value": "(1\u202675",
+            "count": 1,
+            "percentage": 0.05
+          },
+          {
+            "value": "(1\u202607",
+            "count": 1,
+            "percentage": 0.05
+          },
+          {
+            "value": "(1\u202659",
+            "count": 1,
+            "percentage": 0.05
+          },
+          {
+            "value": "(1\u202635",
+            "count": 1,
+            "percentage": 0.05
+          },
+          {
+            "value": "(1\u202602",
+            "count": 1,
+            "percentage": 0.05
+          },
+          {
+            "value": "(1\u202699",
+            "count": 1,
+            "percentage": 0.05
+          },
+          {
+            "value": "(1\u202684",
+            "count": 1,
+            "percentage": 0.05
+          },
+          {
+            "value": "(1\u202692",
+            "count": 1,
+            "percentage": 0.05
+          },
+          {
+            "value": "(1\u202699",
+            "count": 1,
+            "percentage": 0.05
+          },
+          {
+            "value": "(1\u202613",
+            "count": 1,
+            "percentage": 0.05
+          }
+        ],
+        "semantic_type": "phone",
+        "possible_identifier": true
+      },
+      {
+        "name": "likesports",
+        "data_type": "boolean",
+        "row_count": 2000,
+        "null_count": 970,
+        "null_percentage": 48.5,
+        "distinct_count": 2,
+        "uniqueness_percentage": 0.1,
+        "min": false,
+        "max": true,
+        "top_values": [
+          {
+            "value": true,
+            "count": 532,
+            "percentage": 26.6
+          },
+          {
+            "value": false,
+            "count": 498,
+            "percentage": 24.9
+          }
+        ],
+        "semantic_type": "boolean",
+        "possible_identifier": false
+      },
+      {
+        "name": "liketheatre",
+        "data_type": "boolean",
+        "row_count": 2000,
+        "null_count": 1011,
+        "null_percentage": 50.55,
+        "distinct_count": 2,
+        "uniqueness_percentage": 0.1,
+        "min": false,
+        "max": true,
+        "top_values": [
+          {
+            "value": true,
+            "count": 527,
+            "percentage": 26.35
+          },
+          {
+            "value": false,
+            "count": 462,
+            "percentage": 23.1
+          }
+        ],
+        "semantic_type": "boolean",
+        "possible_identifier": false
+      },
+      {
+        "name": "likeconcerts",
+        "data_type": "boolean",
+        "row_count": 2000,
+        "null_count": 1025,
+        "null_percentage": 51.24999999999999,
+        "distinct_count": 2,
+        "uniqueness_percentage": 0.1,
+        "min": false,
+        "max": true,
+        "top_values": [
+          {
+            "value": false,
+            "count": 497,
+            "percentage": 24.85
+          },
+          {
+            "value": true,
+            "count": 478,
+            "percentage": 23.9
+          }
+        ],
+        "semantic_type": "boolean",
+        "possible_identifier": false
+      },
+      {
+        "name": "likejazz",
+        "data_type": "boolean",
+        "row_count": 2000,
+        "null_count": 970,
+        "null_percentage": 48.5,
+        "distinct_count": 2,
+        "uniqueness_percentage": 0.1,
+        "min": false,
+        "max": true,
+        "top_values": [
+          {
+            "value": false,
+            "count": 543,
+            "percentage": 27.150000000000002
+          },
+          {
+            "value": true,
+            "count": 487,
+            "percentage": 24.349999999999998
+          }
+        ],
+        "semantic_type": "boolean",
+        "possible_identifier": false
+      },
+      {
+        "name": "likeclassical",
+        "data_type": "boolean",
+        "row_count": 2000,
+        "null_count": 1019,
+        "null_percentage": 50.949999999999996,
+        "distinct_count": 2,
+        "uniqueness_percentage": 0.1,
+        "min": false,
+        "max": true,
+        "top_values": [
+          {
+            "value": true,
+            "count": 494,
+            "percentage": 24.7
+          },
+          {
+            "value": false,
+            "count": 487,
+            "percentage": 24.349999999999998
+          }
+        ],
+        "semantic_type": "boolean",
+        "possible_identifier": false
+      },
+      {
+        "name": "likeopera",
+        "data_type": "boolean",
+        "row_count": 2000,
+        "null_count": 1022,
+        "null_percentage": 51.1,
+        "distinct_count": 2,
+        "uniqueness_percentage": 0.1,
+        "min": false,
+        "max": true,
+        "top_values": [
+          {
+            "value": true,
+            "count": 524,
+            "percentage": 26.200000000000003
+          },
+          {
+            "value": false,
+            "count": 454,
+            "percentage": 22.7
+          }
+        ],
+        "semantic_type": "boolean",
+        "possible_identifier": false
+      },
+      {
+        "name": "likerock",
+        "data_type": "boolean",
+        "row_count": 2000,
+        "null_count": 1010,
+        "null_percentage": 50.5,
+        "distinct_count": 2,
+        "uniqueness_percentage": 0.1,
+        "min": false,
+        "max": true,
+        "top_values": [
+          {
+            "value": true,
+            "count": 528,
+            "percentage": 26.400000000000002
+          },
+          {
+            "value": false,
+            "count": 462,
+            "percentage": 23.1
+          }
+        ],
+        "semantic_type": "boolean",
+        "possible_identifier": false
+      },
+      {
+        "name": "likevegas",
+        "data_type": "boolean",
+        "row_count": 2000,
+        "null_count": 1040,
+        "null_percentage": 52.0,
+        "distinct_count": 2,
+        "uniqueness_percentage": 0.1,
+        "min": false,
+        "max": true,
+        "top_values": [
+          {
+            "value": true,
+            "count": 483,
+            "percentage": 24.15
+          },
+          {
+            "value": false,
+            "count": 477,
+            "percentage": 23.849999999999998
+          }
+        ],
+        "semantic_type": "boolean",
+        "possible_identifier": false
+      },
+      {
+        "name": "likebroadway",
+        "data_type": "boolean",
+        "row_count": 2000,
+        "null_count": 996,
+        "null_percentage": 49.8,
+        "distinct_count": 2,
+        "uniqueness_percentage": 0.1,
+        "min": false,
+        "max": true,
+        "top_values": [
+          {
+            "value": true,
+            "count": 522,
+            "percentage": 26.1
+          },
+          {
+            "value": false,
+            "count": 482,
+            "percentage": 24.099999999999998
+          }
+        ],
+        "semantic_type": "boolean",
+        "possible_identifier": false
+      },
+      {
+        "name": "likemusicals",
+        "data_type": "boolean",
+        "row_count": 2000,
+        "null_count": 998,
+        "null_percentage": 49.9,
+        "distinct_count": 2,
+        "uniqueness_percentage": 0.1,
+        "min": false,
+        "max": true,
+        "top_values": [
+          {
+            "value": true,
+            "count": 508,
+            "percentage": 25.4
+          },
+          {
+            "value": false,
+            "count": 494,
+            "percentage": 24.7
+          }
+        ],
+        "semantic_type": "boolean",
+        "possible_identifier": false
+      }
+    ]
+  }
+}

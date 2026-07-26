@@ -24,6 +24,12 @@ sha2 = "0.10"
 csv = "1"
 parquet = { version = "59", default-features = false, features = ["snap", "json"] }
 comfy-table = "7"
+datafusion = "54"
+arrow = "58"
+arrow-array = "58"
+arrow-schema = "58"
+tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
+regex = "1"
 
 # dev dependencies
 assert_cmd = "2"

@@ -77,20 +77,55 @@ error-path exit codes manually smoke-tested). 64 tests green (46 unit +
       fixtures (`run` block normalized); exit code 2/3/4 integration
       tests
 
-## Bolt 3 — `profile` + `query` (DataFusion)
+## Bolt 3 — `profile` + `query` (DataFusion) ✅ (2026-07-26)
 
-- [ ] Column statistics per PRD §10.2 on DataFusion;
-      `--columns`, `--sample`
-- [ ] Semantic-type inference + possible-identifier flagging
-- [ ] Golden tests; determinism eval (two runs → byte-identical
-      envelopes modulo `run` block)
-- [ ] 1M-row benchmark wired into `benchmarks/` (SOFT criterion 8);
-      binary-size impact of DataFusion recorded alongside
-- [ ] `datagov query` *(revision 1)*: SQL over local CSV/Parquet,
-      JSON/table/CSV renderings, bounded output by default, `--limit`,
-      execution statistics in the envelope
-- [ ] Golden tests for `query` incl. bounded-output and `--limit`
-      behaviour; exit code 4 on unsupported input
+Built by a Sonnet 5 agent from `briefs/bolt-3.md`; architect-reviewed
+(gates re-run independently, hands-on tested against real fixtures:
+profile human/JSON output, masked top-values, `--sample`/`--columns`,
+determinism across two runs, query aggregation/CSV output/bounded
+truncation/`--limit`, all four query exit paths, and the CSV-rejection
+guard on `inspect`/`version`). 100 tests green (91 run + 1 informational
+`#[ignore]`, cumulative with Bolts 1-2), 0 clippy warnings.
+
+- [x] Column statistics per PRD §10.2 on DataFusion (count, nulls,
+      distinct, min/max, mean/median/stddev/quantiles for numeric,
+      string-length stats, top-values); `--columns`, `--sample N`
+      (first N rows, deterministic — verified: `--sample 10` on
+      `customers.csv` gives min=1/max=10, not a random subset)
+- [x] Semantic-type inference + possible-identifier flagging (verified:
+      `phone` in `customers.parquet` — 100% distinct — flagged
+      `possible_identifier: true`; `email` — 99.9% distinct — correctly
+      not flagged, still semantic_type `"email"` via the heuristic)
+- [x] Golden tests; determinism eval. **Correction:** DataFusion's
+      float aggregates aren't bit-reproducible run-to-run; results are
+      rounded to 9 decimal places before entering the envelope (see
+      design.md). Independently re-verified: two full runs on
+      `customers.parquet`, `run` block excepted, byte-identical.
+- [x] Lightweight informational 1M-row timing check (Bolt 7 owns the
+      real `benchmarks/` + criterion pass): ~450ms observed, well under
+      the 10s SOFT target. Release binary is now 135.2 MiB (up from a
+      pre-DataFusion baseline in the low tens of MB) — DataFusion's own
+      SQL planner/optimizer + `sqlparser` + object_store account for
+      the jump; flagged as the new baseline for Bolt 7 to track.
+      `parquet` crate coexistence confirmed clean: v59.1.0 (Bolt 2's
+      direct pin, `inspect`-only) alongside v58.4.0 (DataFusion's
+      transitive dependency) — no version-resolution conflicts.
+- [x] `datagov query` *(revision 1)*: SQL over local CSV/Parquet only
+      (PRD §10.3 is explicit — JSON/TSV/JSONL correctly rejected, exit
+      4, verified against `examples/customers.json`), JSON/table/CSV
+      renderings (CSV output verified bare — no envelope wrapper),
+      bounded output by default (1000, verified: unbounded query over
+      8,682-row parquet returns 1000 rows, `truncated: true`,
+      `total_row_count: 8682`), `--limit` override (verified),
+      execution statistics in the envelope. **Decision:** file-path
+      resolution uses an explicit regex scan + registration, not
+      DataFusion's native `enable_url_table()` — the latter would
+      silently accept JSON files, undermining the PRD §10.3 boundary
+      (see design.md).
+- [x] Golden tests for `query`; exit codes verified: 2 (invalid SQL),
+      3 (missing file), 4 (unsupported format). New `Csv` output
+      variant rejected by every other command (`inspect`/`version`/
+      `capabilities`), verified: `--output csv` on each → exit 2.
 
 ## Bolt 4 — `sql parse | format | transpile`
 

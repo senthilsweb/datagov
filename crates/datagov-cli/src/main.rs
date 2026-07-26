@@ -2,8 +2,8 @@
 //! and the exit-code funnel.
 //!
 //! 1. Parses global flags (`--output`, `--quiet`, `--verbose`) and
-//!    subcommands (`version`, `capabilities`, `inspect`) via clap derive
-//!    (`cli::Cli`).
+//!    subcommands (`version`, `capabilities`, `inspect`, `profile`,
+//!    `query`) via clap derive (`cli::Cli`).
 //! 2. Initializes the shared `tracing` subscriber via
 //!    `datagov_core::logging::init` before dispatching any command.
 //! 3. Dispatches to one thin command function per subcommand
@@ -37,6 +37,19 @@ fn main() {
         Command::Inspect { path, r#type } => {
             commands::inspect::run(&path, r#type.as_deref(), cli.output)
         }
+        Command::Profile {
+            path,
+            r#type,
+            columns,
+            sample,
+        } => commands::profile::run(
+            &path,
+            r#type.as_deref(),
+            columns.as_deref(),
+            sample,
+            cli.output,
+        ),
+        Command::Query { sql, limit } => commands::query::run(&sql, limit, cli.output),
     };
 
     if let Err(err) = result {

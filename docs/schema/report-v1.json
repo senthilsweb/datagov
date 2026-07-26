@@ -118,6 +118,120 @@
     }
   },
   "definitions": {
+    "ColumnProfile": {
+      "description": "Per-column statistics for one profiled column. Numeric-only fields (`mean`, `median`, `stddev`, `quantiles`) and the string-only `string_length` are `None` when they don't apply to `data_type`, mirroring how `DatasetSection::parquet` is `None` for non-Parquet formats.",
+      "type": "object",
+      "required": [
+        "data_type",
+        "distinct_count",
+        "name",
+        "null_count",
+        "null_percentage",
+        "possible_identifier",
+        "row_count",
+        "semantic_type",
+        "top_values",
+        "uniqueness_percentage"
+      ],
+      "properties": {
+        "data_type": {
+          "$ref": "#/definitions/DataType"
+        },
+        "distinct_count": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "max": {
+          "description": "Masked (via `datagov_core::mask::Masked`) when the column is heuristically sensitive."
+        },
+        "mean": {
+          "description": "Numeric columns only.",
+          "type": [
+            "number",
+            "null"
+          ],
+          "format": "double"
+        },
+        "median": {
+          "description": "Numeric columns only; also present as `\"p50\"` in `quantiles`.",
+          "type": [
+            "number",
+            "null"
+          ],
+          "format": "double"
+        },
+        "min": {
+          "description": "Masked (via `datagov_core::mask::Masked`) when the column is heuristically sensitive."
+        },
+        "name": {
+          "type": "string"
+        },
+        "null_count": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "null_percentage": {
+          "type": "number",
+          "format": "double"
+        },
+        "possible_identifier": {
+          "description": "`true` when `distinct_count == row_count && row_count > 0`, or the column name matches `^(id|.*_id|.*id)$` (case-insensitive).",
+          "type": "boolean"
+        },
+        "quantiles": {
+          "description": "Numeric columns only: `\"p25\"`..`\"p99\"`.",
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "row_count": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "semantic_type": {
+          "description": "Heuristic bucket (not ML/LLM-derived) — a matched `datagov_core::sensitivity` fragment name (e.g. `\"email\"`), else `\"identifier\"` when `possible_identifier`, else a coarse bucket by `data_type` (`\"numeric\"`, `\"boolean\"`, `\"text\"`).",
+          "type": "string"
+        },
+        "stddev": {
+          "description": "Numeric columns only.",
+          "type": [
+            "number",
+            "null"
+          ],
+          "format": "double"
+        },
+        "string_length": {
+          "description": "String columns only.",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/StringLengthStats"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "top_values": {
+          "description": "Masked (via `datagov_core::mask::Masked`) when the column is heuristically sensitive.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TopValue"
+          }
+        },
+        "uniqueness_percentage": {
+          "type": "number",
+          "format": "double"
+        }
+      }
+    },
     "ColumnSchema": {
       "description": "One column's inferred name, type, and nullability.",
       "type": "object",
@@ -295,8 +409,28 @@
       "type": "object"
     },
     "ProfileSection": {
-      "description": "Placeholder for the `profile` section; populated starting Bolt 3.",
-      "type": "object"
+      "description": "The `profile` section (PRD §10.2), populated by `datagov profile` via DataFusion aggregate SQL (`datagov_data::profile`).",
+      "type": "object",
+      "required": [
+        "columns"
+      ],
+      "properties": {
+        "columns": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ColumnProfile"
+          }
+        },
+        "sample_size": {
+          "description": "`Some(n)` when `--sample n` bounded profiling to the first `n` rows in source order (deterministic, not a random sample); `None` when the full dataset was profiled.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0.0
+        }
+      }
     },
     "QualitySection": {
       "description": "Placeholder for the `quality` section; populated in a later change.",
@@ -373,6 +507,31 @@
         "failed"
       ]
     },
+    "StringLengthStats": {
+      "description": "String-length summary for a `DataType::String` column.",
+      "type": "object",
+      "required": [
+        "max",
+        "mean",
+        "min"
+      ],
+      "properties": {
+        "max": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "mean": {
+          "type": "number",
+          "format": "double"
+        },
+        "min": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0.0
+        }
+      }
+    },
     "Summary": {
       "description": "Aggregate counts summarizing the run.",
       "type": "object",
@@ -417,6 +576,27 @@
         "version": {
           "type": "string"
         }
+      }
+    },
+    "TopValue": {
+      "description": "One entry in a column's top-values list. `value` is masked (via `datagov_core::mask::Masked`, rendered as a JSON string) when the column is heuristically sensitive.",
+      "type": "object",
+      "required": [
+        "count",
+        "percentage",
+        "value"
+      ],
+      "properties": {
+        "count": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "percentage": {
+          "type": "number",
+          "format": "double"
+        },
+        "value": true
       }
     }
   }

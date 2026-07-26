@@ -5,10 +5,14 @@
 //!    exclusive; clap exits 2 (its own default usage-error code) if both
 //!    are given.
 //! 2. Defines `Command`, the subcommand set: `version`, `capabilities`
-//!    (Bolt 1), and `inspect` (Bolt 2) — `datagov inspect <path|-> [--type
-//!    <csv|tsv|json|jsonl|parquet>]`.
-//! 3. Defines `OutputFormat`, the clap-facing rendering choice
-//!    (`json` | `table`, default `table`).
+//!    (Bolt 1), `inspect` (Bolt 2) — `datagov inspect <path|-> [--type
+//!    <csv|tsv|json|jsonl|parquet>]` — and (Bolt 3) `profile` (`datagov
+//!    profile <path> [--type ..] [--columns a,b] [--sample n]`) and
+//!    `query` (`datagov query "<sql>" [--limit n]`).
+//! 3. Defines `OutputFormat`, the clap-facing rendering choice (`json` |
+//!    `table` | `csv`, default `table`). `csv` is Bolt 3, accepted only
+//!    by `query` — every other command rejects it explicitly rather than
+//!    silently falling back to table rendering.
 
 use clap::{Parser, Subcommand, ValueEnum};
 
@@ -47,10 +51,43 @@ pub enum Command {
         #[arg(long = "type", value_name = "FORMAT")]
         r#type: Option<String>,
     },
+    /// Compute per-column statistics (nulls, distinct, min/max/mean/
+    /// median/stddev, quantiles, string lengths, top values, semantic
+    /// type, possible identifiers) via the embedded DataFusion engine.
+    /// CSV and Parquet only.
+    Profile {
+        /// Path to the dataset (a real file — DataFusion table
+        /// registration needs random file access, so `-` is not
+        /// supported).
+        path: String,
+        /// Explicit format when it cannot be inferred from the path.
+        #[arg(long = "type", value_name = "FORMAT")]
+        r#type: Option<String>,
+        /// Profile only these column names (comma-separated).
+        #[arg(long, value_delimiter = ',', value_name = "COLUMNS")]
+        columns: Option<Vec<String>>,
+        /// Profile only the first N rows in source order (deterministic
+        /// — not a random sample).
+        #[arg(long, value_name = "N")]
+        sample: Option<u64>,
+    },
+    /// Run SQL over local CSV/Parquet files via the embedded DataFusion
+    /// engine. Quoted file paths in `FROM`/`JOIN` position (e.g.
+    /// `'customers.parquet'`) are resolved automatically.
+    Query {
+        /// The SQL statement to execute.
+        sql: String,
+        /// Override the default row bound (see
+        /// `datagov_data::query::DEFAULT_QUERY_LIMIT`).
+        #[arg(long, value_name = "N")]
+        limit: Option<usize>,
+    },
 }
 
 #[derive(ValueEnum, Debug, Clone, Copy, PartialEq, Eq)]
 pub enum OutputFormat {
     Json,
     Table,
+    /// Bolt 3: raw CSV to stdout, no envelope. Only `query` accepts this.
+    Csv,
 }
