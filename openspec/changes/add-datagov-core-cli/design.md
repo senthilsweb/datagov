@@ -61,6 +61,14 @@ Rules:
 | License | Apache 2.0 (LICENSE replaced at the gate) |
 | Release versioning | Manual `v*` tags for 0.1; release-plz revisited later |
 
+**Correction (2026-07-26, Bolt 1 Construction):** `schemars` pinned to
+**0.8** (resolved 0.8.22), not 1.x — the 1.x line changes the schema
+generation API and default JSON Schema draft, and the committed
+`docs/schema/report-v1.json` is load-bearing (drift test + published
+with releases). Migrating to 1.x is a deliberate future change, not a
+silent dependency bump. Flagged by the implementation agent; accepted
+by the architect.
+
 ## Fixtures and evals
 
 - `examples/` — synthetic `customers.csv` / `customers.parquet`

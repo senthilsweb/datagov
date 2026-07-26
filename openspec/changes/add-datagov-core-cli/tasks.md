@@ -27,18 +27,27 @@ moves to **APPROVED**.
       for 0.1
 - [x] Proposal status → **APPROVED** (2026-07-26)
 
-## Bolt 1 — Workspace skeleton, envelope, exit codes
+## Bolt 1 — Workspace skeleton, envelope, exit codes ✅ (2026-07-26)
 
-- [ ] Cargo workspace + the six milestone crates; `datagov version`
+Built by a Sonnet 5 agent from `briefs/bolt-1.md`; architect-reviewed
+(gates re-run independently, envelope/mask/exit spot-checked, binary
+smoke-tested). 30 tests green (23 unit + 7 integration).
+
+- [x] Cargo workspace + the six milestone crates; `datagov version`
       and `datagov capabilities` working end-to-end
-- [ ] `datagov-core`: report envelope types + schemars JSON Schema
-      committed at `docs/schema/report-v1.json` + drift test
-- [ ] `datagov-core`: `ExitCode` enum per PRD §24; clap error mapping
-      (2/3/4) covered by integration tests
-- [ ] `tracing` subscriber (stderr, JSON lines under `--verbose`,
-      silent under `--quiet`); global `--output` plumbing
-- [ ] Config resolution chain per PRD §28 with unit tests
-- [ ] File-header convention applied; CI (fmt, clippy, test) green
+- [x] `datagov-core`: report envelope types + schemars JSON Schema
+      committed at `docs/schema/report-v1.json` + drift test.
+      **Correction:** schemars pinned 0.8, not 1.x (see design.md)
+- [x] `datagov-core`: `ExitCode` enum per PRD §24 (all 13 discriminants
+      pinned by unit test); clap error mapping — 2 integration-tested;
+      3/4 unit-tested via `DatagovError::exit_code()`, integration
+      coverage lands with `inspect` in Bolt 2 (no file commands exist yet)
+- [x] `tracing` subscriber (stderr-only, JSON lines under `--verbose`,
+      ERROR-only under `--quiet`, `DATAGOV_LOG` override); global
+      `--output` plumbing (quiet/verbose conflict → exit 2)
+- [x] Config resolution chain per PRD §28 with 10 unit tests (each
+      layer, override order, malformed YAML → exit 2)
+- [x] File-header convention applied; CI (fmt, clippy, test) green
 
 ## Bolt 2 — `inspect` + fixtures
 

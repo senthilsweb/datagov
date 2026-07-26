@@ -1,0 +1,24 @@
+[package]
+name = "datagov-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[[bin]]
+name = "datagov"
+path = "src/main.rs"
+
+[dependencies]
+datagov-core = { workspace = true }
+clap = { workspace = true }
+serde_json = { workspace = true }
+anyhow = { workspace = true }
+tracing = { workspace = true }
+
+[dev-dependencies]
+assert_cmd = { workspace = true }
+predicates = { workspace = true }
+jsonschema = { workspace = true }
+serde_json = { workspace = true }
+uuid = { workspace = true }

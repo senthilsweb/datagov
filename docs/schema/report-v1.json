@@ -1,0 +1,260 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Report",
+  "description": "The canonical `datagov` report envelope (PRD §23).",
+  "type": "object",
+  "required": [
+    "run",
+    "schema_version",
+    "summary",
+    "tool"
+  ],
+  "properties": {
+    "dataset": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/DatasetSection"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "evidence": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/EvidenceSection"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "extensions": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "input": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/Input"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "lineage": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/LineageSection"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "pii": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/PiiSection"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "policy": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/PolicySection"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "profile": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/ProfileSection"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "quality": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/QualitySection"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "run": {
+      "$ref": "#/definitions/Run"
+    },
+    "schema": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/SchemaSection"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "schema_version": {
+      "type": "string"
+    },
+    "summary": {
+      "$ref": "#/definitions/Summary"
+    },
+    "tool": {
+      "$ref": "#/definitions/Tool"
+    }
+  },
+  "definitions": {
+    "DatasetSection": {
+      "description": "Placeholder for the `dataset` section; populated starting Bolt 2.",
+      "type": "object"
+    },
+    "EvidenceSection": {
+      "description": "Placeholder for the `evidence` section; populated starting Bolt 5.",
+      "type": "object"
+    },
+    "Input": {
+      "description": "Describes the input the command operated on.",
+      "type": "object",
+      "required": [
+        "format",
+        "uri"
+      ],
+      "properties": {
+        "content_hash": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "format": {
+          "type": "string"
+        },
+        "uri": {
+          "type": "string"
+        }
+      }
+    },
+    "LineageSection": {
+      "description": "Placeholder for the `lineage` section; populated in a later change.",
+      "type": "object"
+    },
+    "PiiSection": {
+      "description": "Placeholder for the `pii` section; populated starting Bolt 5.",
+      "type": "object"
+    },
+    "PolicySection": {
+      "description": "Placeholder for the `policy` section; populated in a later change.",
+      "type": "object"
+    },
+    "ProfileSection": {
+      "description": "Placeholder for the `profile` section; populated starting Bolt 3.",
+      "type": "object"
+    },
+    "QualitySection": {
+      "description": "Placeholder for the `quality` section; populated in a later change.",
+      "type": "object"
+    },
+    "Run": {
+      "description": "Run metadata: identity, timing.",
+      "type": "object",
+      "required": [
+        "completed_at",
+        "duration_ms",
+        "id",
+        "started_at"
+      ],
+      "properties": {
+        "completed_at": {
+          "description": "RFC 3339 timestamp.",
+          "type": "string"
+        },
+        "duration_ms": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "id": {
+          "description": "UUIDv7 run identifier (time-ordered, unique per run).",
+          "type": "string"
+        },
+        "started_at": {
+          "description": "RFC 3339 timestamp.",
+          "type": "string"
+        }
+      }
+    },
+    "SchemaSection": {
+      "description": "Placeholder for the `schema` section; populated in a later change.",
+      "type": "object"
+    },
+    "Status": {
+      "description": "Overall run status.",
+      "type": "string",
+      "enum": [
+        "success",
+        "warning",
+        "failed"
+      ]
+    },
+    "Summary": {
+      "description": "Aggregate counts summarizing the run.",
+      "type": "object",
+      "required": [
+        "errors",
+        "info",
+        "status",
+        "warnings"
+      ],
+      "properties": {
+        "errors": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "info": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "status": {
+          "$ref": "#/definitions/Status"
+        },
+        "warnings": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0.0
+        }
+      }
+    },
+    "Tool": {
+      "description": "Identifies the tool that produced the report.",
+      "type": "object",
+      "required": [
+        "name",
+        "version"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
