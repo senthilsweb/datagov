@@ -17,7 +17,16 @@ use datagov_core::DatagovError;
 use datagov_core::report::ReportBuilder;
 use serde_json::json;
 
-const COMMANDS: &[&str] = &["version", "capabilities", "inspect", "profile", "query"];
+const COMMANDS: &[&str] = &[
+    "version",
+    "capabilities",
+    "inspect",
+    "profile",
+    "query",
+    "sql parse",
+    "sql format",
+    "sql transpile",
+];
 const FORMATS: &[&str] = &["csv", "tsv", "json", "jsonl", "parquet"];
 const FEATURES: &[&str] = &[];
 
