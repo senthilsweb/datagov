@@ -1,5 +1,23 @@
 # Example fixtures
 
+## Try them against the CLI
+
+From the repo root, after `cargo build --release` (see the root
+[README](../README.md#try-it-now)):
+
+```bash
+./target/release/datagov inspect examples/customers.parquet
+./target/release/datagov inspect examples/customers.csv --output json | jq .
+./target/release/datagov inspect examples/customers.tsv
+./target/release/datagov inspect examples/customers.jsonl --output json | jq '.dataset.schema'
+cat examples/customers.jsonl | ./target/release/datagov inspect - --type jsonl
+
+# email/phone are masked even in raw sample rows — compare against the
+# actual first row of customers.csv to see it in action
+./target/release/datagov inspect examples/customers.parquet --output json \
+  | jq '.dataset.sample_rows[0] | {email, phone}'
+```
+
 All datasets here are **synthetic** — generated identities and Lorem
 Ipsum-style content, never real people or organizations. They are
 sourced from the owner's own public dataset repos, so provenance is

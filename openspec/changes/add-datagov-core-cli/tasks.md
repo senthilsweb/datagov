@@ -128,9 +128,16 @@ error-path exit codes manually smoke-tested). 64 tests green (46 unit +
 
 ## Bolt 7 — Release proving + verification
 
+- [x] `install.sh` authored ahead of schedule (2026-07-26, owner
+      request) — OS/arch detection, latest-or-pinned release
+      resolution, checksum-verified download, no-sudo install; see the
+      new `release-distribution` requirement. **Not yet end-to-end
+      verified against a real release** (none published) — this bolt's
+      first task below covers that.
 - [ ] CI release path proven: `v0.1.0-rc` tag → GitHub Release with
       `datagov-darwin-arm64` + `datagov-linux-x86_64`, SPDX SBOM,
-      SHA-256 checksums (remaining PRD §29 targets best-effort)
+      SHA-256 checksums (remaining PRD §29 targets best-effort); then
+      run `install.sh` against that real release end-to-end
 - [ ] Clean-machine eval: binaries run the §36 demo sequence on hosts
       with no toolchains installed
 - [ ] Startup benchmark <150 ms measured and published (SOFT)

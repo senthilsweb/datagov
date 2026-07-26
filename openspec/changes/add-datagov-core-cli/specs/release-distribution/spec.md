@@ -37,3 +37,36 @@ SHA-256 checksums for all binaries (PRD §12.15, §25.14).
 **Then** the SHA-256 matches
 **And** an SPDX document covering the binary's dependencies is attached
 to the release.
+
+### Requirement: One-line install script
+
+The repository SHALL provide `install.sh` (PRD §29) that detects the
+caller's OS/architecture, resolves a release (latest by default, or a
+pinned tag via `DATAGOV_VERSION`), downloads the matching binary and
+its checksum from that release, refuses to install on a checksum
+mismatch, and installs to a user-writable directory with no implicit
+`sudo`.
+
+#### Scenario: Install the latest release
+
+**Given** a published GitHub Release exists
+**When** a user runs
+`curl -fsSL https://raw.githubusercontent.com/senthilsweb/datagov/main/install.sh | sh`
+**Then** the script installs the binary matching the caller's OS/arch
+to `~/.local/bin` (or `$DATAGOV_INSTALL_DIR`)
+**And** `datagov version` succeeds afterward.
+
+#### Scenario: Checksum mismatch aborts installation
+
+**Given** a downloaded binary whose SHA-256 does not match its
+published checksum file
+**When** the install script runs
+**Then** it exits non-zero without installing anything
+**And** the error names the expected and actual checksums.
+
+#### Scenario: No release published yet
+
+**Given** no GitHub Release exists
+**When** the install script runs
+**Then** it fails with a clear, actionable message rather than a raw
+HTTP error, pointing at the Releases page.
