@@ -1,0 +1,7 @@
+title: datagov
+description: >-
+  A single-download, agent-ready command-line interface for data
+  inspection, SQL analysis, profiling, PII detection, data quality,
+  lineage, policy evaluation, and governance reporting.
+theme: jekyll-theme-primer
+markdown: kramdown
