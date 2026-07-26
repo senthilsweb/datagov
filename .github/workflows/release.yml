@@ -19,18 +19,19 @@ env:
   BIN_NAME: datagov
 
 jobs:
-  build:
-    name: Build ${{ matrix.artifact }}
+  build-required:
+    name: Build ${{ matrix.artifact }} (required)
     runs-on: ${{ matrix.runner }}
-    # required targets (release-distribution spec: darwin-arm64 +
-    # linux-x86_64) must succeed for the release to proceed; the rest
-    # are best-effort per PRD §29 — continue-on-error so a slow/
-    # unavailable runner (observed: macos-13 queued 50+ min with no
-    # capacity, 2026-07-26) can't block the whole release indefinitely.
-    # timeout-minutes bounds every leg, required or not, so a stuck
-    # queue fails loudly within 20 min instead of hanging forever.
+    # GitHub collapses a matrix job's result into one worst-case value
+    # for needs.<job>.result — a downstream job can't tell "a required
+    # leg failed" from "only a best-effort leg failed" if they share one
+    # matrix (confirmed via GitHub Actions docs/community discussion,
+    # 2026-07-26, after continue-on-error alone caused the release job
+    # to be skipped rather than proceed on rc.3). Required and
+    # best-effort targets are therefore separate jobs: this one gates
+    # the release normally (no continue-on-error); build-optional below
+    # never blocks it.
     timeout-minutes: 20
-    continue-on-error: ${{ !matrix.required }}
     strategy:
       fail-fast: false
       matrix:
@@ -38,7 +39,65 @@ jobs:
           - artifact: datagov-darwin-arm64
             runner: macos-14
             target: aarch64-apple-darwin
-            required: true
+          - artifact: datagov-linux-x86_64
+            runner: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.target }}
+
+      - name: Build
+        run: cargo build --release --locked --target ${{ matrix.target }} -p datagov-cli
+
+      - name: Stage artifact
+        shell: bash
+        run: |
+          mkdir -p dist
+          SRC="target/${{ matrix.target }}/release/${BIN_NAME}"
+          [ -f "${SRC}.exe" ] && SRC="${SRC}.exe"
+          cp "$SRC" "dist/${{ matrix.artifact }}"
+
+      - name: Checksum
+        shell: bash
+        run: |
+          cd dist
+          if command -v sha256sum >/dev/null; then
+            sha256sum "${{ matrix.artifact }}" > "${{ matrix.artifact }}.sha256"
+          else
+            shasum -a 256 "${{ matrix.artifact }}" > "${{ matrix.artifact }}.sha256"
+          fi
+
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: dist/*
+
+  build-optional:
+    name: Build ${{ matrix.artifact }} (best-effort)
+    runs-on: ${{ matrix.runner }}
+    # Best-effort per PRD §29 — continue-on-error so a slow/unavailable
+    # runner (observed: macos-13 queued 50+ min with no capacity twice,
+    # 2026-07-26) can't block the release; timeout-minutes bounds the
+    # wait once a runner IS assigned. Kept out of build-required's
+    # matrix so a failure/timeout here can never cause the release job
+    # to be skipped (see the note on build-required above).
+    timeout-minutes: 20
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
           - artifact: datagov-darwin-x86_64
             # Cross-compiled from the same arm64 runner as datagov-darwin-arm64,
             # not a native macos-13 (Intel) runner — that pool queued with no
@@ -47,19 +106,12 @@ jobs:
             # targets natively, so this needs no separate machine.
             runner: macos-14
             target: x86_64-apple-darwin
-            required: false
           - artifact: datagov-linux-arm64
             runner: ubuntu-24.04-arm
             target: aarch64-unknown-linux-gnu
-            required: false
-          - artifact: datagov-linux-x86_64
-            runner: ubuntu-latest
-            target: x86_64-unknown-linux-gnu
-            required: true
           - artifact: datagov-windows-x86_64.exe
             runner: windows-latest
             target: x86_64-pc-windows-msvc
-            required: false
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -124,7 +176,14 @@ jobs:
 
   release:
     name: Publish GitHub Release
-    needs: [build, sbom]
+    needs: [build-required, build-optional, sbom]
+    # !cancelled() overrides the default "only run if every needs job
+    # succeeded" gating — without it, build-optional's expected
+    # failures (best-effort targets) would skip this job entirely, the
+    # exact bug hit on rc.3. build-optional's result is deliberately
+    # never checked below: only the required build and the SBOM must
+    # have actually succeeded for a release to be published.
+    if: ${{ !cancelled() && needs.build-required.result == 'success' && needs.sbom.result == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - name: Download artifacts
