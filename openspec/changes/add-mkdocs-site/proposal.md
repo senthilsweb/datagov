@@ -1,11 +1,11 @@
 # Proposal: `add-mkdocs-site` — replace the ad hoc docs site with the shared MkDocs pattern
 
-> Status: **PROPOSED, 3 of 4 open questions resolved** — 2026-07-26.
-> Questions 1, 2, 4 resolved by owner; question 3 (published URL) hit
-> a genuine GitHub Pages platform constraint during investigation —
-> see its entry below for the finding and the owner's pending call.
-> Bolt 1 (the skill) proceeds in parallel since it doesn't depend on
-> the answer; the site migration itself waits for it.
+> Status: **APPROVED** — 2026-07-26. All four open questions
+> resolved by owner; question 3 required real investigation (GitHub
+> Pages custom-domain inheritance has no per-repo opt-out — confirmed
+> via three separate attempts including a full Pages-site delete and
+> recreate) before the owner could make an informed call. Bolt 1 (the
+> skill) is already done; Bolt 2 (site migration) starts now.
 > Owner: @senthilsweb
 > Source: owner request ("I need it in mkdocs which is what we have
 > been following... standard navigation system... skill file for docs
@@ -136,34 +136,25 @@ next time, in this repo or any other.
    (owner, 2026-07-26): one reference page**, listing every command
    one by one with a full explanation each (reference-depth, not just
    a terse flag table) — richer than the current site's version.
-3. **Published URL** — **owner (2026-07-26): must NOT be
-   `www.senthilsweb.com/datagov/`**, to avoid an accidental path
-   collision with the main webapp. **Investigated, not yet resolved —
-   a real platform constraint, not a configuration oversight:**
-   - GitHub Pages' custom-domain inheritance (user/org site → every
-     project site) is unconditional and undocumented-as-overridable
-     per project repo. Confirmed empirically: explicitly clearing
-     datagov's `cname` via the Pages API (already `null`) had no
-     effect — `html_url` still reports
-     `http://www.senthilsweb.com/datagov/`.
-   - **However**, `https://senthilsweb.github.io/datagov/` is
-     confirmed **independently live right now** (HTTP 200, same
-     content) — GitHub serves *both* URLs simultaneously; there is no
-     supported way to serve only one.
-   - Options, none of which make the custom-domain URL stop
-     responding: **(a)** proceed anyway — use only the
-     `senthilsweb.github.io/datagov/` URL in all docs/links/READMEs,
-     accept that `www.senthilsweb.com/datagov/` also silently serves
-     the same content (harmless unless the main webapp independently
-     tries to claim that exact path — a question about the main
-     webapp's own routing, not something GitHub Pages can be told to
-     release); **(b)** file a GitHub Support request asking them to
-     manually disable inheritance for this one repo (self-service API/
-     UI does not expose this, per community reports); **(c)** other,
-     if you know something about the main webapp's hosting/DNS setup
-     that changes the calculus. **Awaiting your call** — this is the
-     one open item blocking full approval; Bolt 1 (the skill, which
-     doesn't depend on the answer) is proceeding in parallel.
+3. ~~**Published URL**~~ — **Resolved (owner, 2026-07-26): proceed
+   with option (a).** Confirmed via three separate attempts (clearing
+   `cname` two ways, then deleting and recreating the Pages site from
+   scratch with only `build_type: workflow`) that GitHub Pages'
+   account-level custom-domain inheritance to every project site has
+   no per-repo opt-out — official GitHub docs only cover removing a
+   domain *explicitly* set on a repo, and datagov's was never set
+   explicitly to begin with. `www.senthilsweb.com/datagov/` will keep
+   serving the same content in parallel regardless; there is no lever
+   to stop it short of removing the custom domain from the account's
+   user-level site entirely (unacceptable — breaks it for every other
+   project) or a manual GitHub Support request. **Owner's call:**
+   `senthilsweb.github.io/datagov/` is the only URL this project
+   documents, links, or promotes; the owner will separately ensure the
+   main webapp's own routing never claims `/datagov` as a real path
+   (the actual thing that matters for collision risk, and outside
+   GitHub Pages' control either way). `build_type: workflow` is
+   already set as a side effect of testing this — needed anyway for
+   the MkDocs migration.
 4. ~~**Skill placement**~~ — **Resolved (owner, 2026-07-26): both** —
    master copy in `~/work/my-agent-task-register/skills/mkdocs-site/`
    (that repo's documented pattern: master copies live there, edited

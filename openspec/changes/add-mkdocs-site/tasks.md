@@ -6,16 +6,16 @@
       Deployment = docs-publishing page, distinct from CI/CD
 - [x] Resolve open question 2 — **resolved (owner, 2026-07-26):** one
       Commands reference page, every command explained in full
-- [ ] Resolve open question 3 — published URL. **Investigated, not
-      resolved**: GitHub Pages' custom-domain inheritance is
-      unconditional per account, confirmed no per-repo API override
-      exists; `senthilsweb.github.io/datagov/` is independently live
-      today regardless. Owner to choose how to proceed (see
-      proposal.md's options a/b/c) — this is the only remaining gate
-      item; it blocks Bolt 2/4 (going live) but not Bolt 1 (the skill)
+- [x] Resolve open question 3 — **resolved (owner, 2026-07-26):
+      proceed anyway (option a).** GitHub Pages' custom-domain
+      inheritance confirmed unconditional (3 attempts, incl. a full
+      Pages-site delete+recreate); `senthilsweb.github.io/datagov/` is
+      the only URL this project documents/promotes; owner handles
+      main-webapp routing collision risk separately. `build_type:
+      workflow` already set as a side effect.
 - [x] Resolve open question 4 — **resolved (owner, 2026-07-26):**
       master copy in `my-agent-task-register`, symlinked globally
-- [ ] Proposal status → **APPROVED** (pending question 3)
+- [x] Proposal status → **APPROVED** (2026-07-26)
 
 ## Bolt 1 — Skill ✅ (2026-07-26)
 

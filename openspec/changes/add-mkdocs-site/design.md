@@ -10,7 +10,7 @@ the identifying fields change
 # https://senthilsweb.github.io/ai-agents/style-guide/
 # Spec: openspec/changes/add-mkdocs-site/
 site_name: datagov
-site_url: https://www.senthilsweb.com/datagov/   # pending open question 3
+site_url: https://senthilsweb.github.io/datagov/   # the only URL this project documents/promotes (see proposal.md Q3)
 repo_url: https://github.com/senthilsweb/datagov
 repo_name: senthilsweb/datagov
 edit_uri: edit/main/docs/
