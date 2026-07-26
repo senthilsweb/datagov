@@ -1,0 +1,64 @@
+name: CI
+
+# Rust quality gates per AGENTS.md §11: fmt, clippy -D warnings, test.
+# Path-filtered so the workflow stays quiet until the Cargo workspace
+# lands with Bolt 1 of openspec/changes/add-datagov-core-cli.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'crates/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - 'rust-toolchain.toml'
+      - '.github/workflows/ci.yml'
+  pull_request:
+    paths:
+      - 'crates/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - 'rust-toolchain.toml'
+      - '.github/workflows/ci.yml'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Guard — skip until the Cargo workspace exists
+        id: guard
+        run: |
+          if [ -f Cargo.toml ]; then
+            echo "workspace=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "workspace=false" >> "$GITHUB_OUTPUT"
+            echo "No Cargo.toml yet — nothing to check."
+          fi
+
+      - name: Rust toolchain (stable + rustfmt + clippy)
+        if: steps.guard.outputs.workspace == 'true'
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Cache
+        if: steps.guard.outputs.workspace == 'true'
+        uses: Swatinem/rust-cache@v2
+
+      - name: Format
+        if: steps.guard.outputs.workspace == 'true'
+        run: cargo fmt --all --check
+
+      - name: Clippy
+        if: steps.guard.outputs.workspace == 'true'
+        run: cargo clippy --workspace --all-targets -- -D warnings
+
+      - name: Test
+        if: steps.guard.outputs.workspace == 'true'
+        run: cargo test --workspace
