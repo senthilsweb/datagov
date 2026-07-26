@@ -6,4 +6,5 @@
 //!    No business logic lives in these files beyond that adaptation.
 
 pub mod capabilities;
+pub mod inspect;
 pub mod version;

@@ -5,8 +5,10 @@
 //!    §23), `exit` (the exit-code contract, PRD §24), `error` (the typed
 //!    error enum and its mapping to exit codes), `logging` (the shared
 //!    `tracing` subscriber setup), `config` (the configuration resolution
-//!    chain, PRD §28), and `mask` (the single masking implementation used
-//!    for any sensitive value that reaches an output surface).
+//!    chain, PRD §28), `mask` (the single masking implementation used
+//!    for any sensitive value that reaches an output surface), and
+//!    `sensitivity` (the Bolt 2 sensitive-column-name heuristic used by
+//!    `inspect` ahead of the Bolt 5 PII recognizer engine).
 //! 2. Re-exports the most commonly used types at the crate root for
 //!    ergonomic `datagov_core::Report`-style access from callers.
 
@@ -16,6 +18,7 @@ pub mod exit;
 pub mod logging;
 pub mod mask;
 pub mod report;
+pub mod sensitivity;
 
 pub use error::DatagovError;
 pub use exit::ExitCode;

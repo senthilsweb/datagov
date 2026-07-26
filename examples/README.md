@@ -10,9 +10,11 @@ external and auditable rather than invented for this project.
 `customers.csv`, `customers.tsv`, `customers.json`, `customers.jsonl`,
 and `customers.parquet` all share the same schema (a TICKIT-shaped
 users table: `userid, username, firstname, lastname, city, state,
-email, phone` + nine `like*` booleans, several with null values). Using
-one dataset across every supported format lets `inspect` golden tests
-compare format-specific parsing without also varying the data.
+email, phone` + ten `like*` booleans, several with null values —
+18 columns total, confirmed by Bolt 2's `inspect` output across all
+five formats). Using one dataset across every supported format lets
+`inspect` golden tests compare format-specific parsing without also
+varying the data.
 
 | File | Rows | Source |
 |---|---|---|

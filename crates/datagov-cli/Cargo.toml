@@ -11,10 +11,12 @@ path = "src/main.rs"
 
 [dependencies]
 datagov-core = { workspace = true }
+datagov-data = { workspace = true }
 clap = { workspace = true }
 serde_json = { workspace = true }
 anyhow = { workspace = true }
 tracing = { workspace = true }
+comfy-table = { workspace = true }
 
 [dev-dependencies]
 assert_cmd = { workspace = true }
@@ -22,3 +24,5 @@ predicates = { workspace = true }
 jsonschema = { workspace = true }
 serde_json = { workspace = true }
 uuid = { workspace = true }
+csv = { workspace = true }
+parquet = { workspace = true }

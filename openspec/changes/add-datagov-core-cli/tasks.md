@@ -49,18 +49,33 @@ smoke-tested). 30 tests green (23 unit + 7 integration).
       layer, override order, malformed YAML → exit 2)
 - [x] File-header convention applied; CI (fmt, clippy, test) green
 
-## Bolt 2 — `inspect` + fixtures ✅ fixtures sourced (2026-07-26)
+## Bolt 2 — `inspect` + fixtures ✅ (2026-07-26)
+
+Built by a Sonnet 5 agent from `briefs/bolt-2.md`; architect-reviewed
+(gates re-run independently, masking verified by grepping full
+JSON+human output for raw fixture values, all five formats and both
+error-path exit codes manually smoke-tested). 64 tests green (46 unit +
+18 integration, cumulative with Bolt 1).
 
 - [x] Fixtures committed at `examples/` — `customers.{csv,tsv,json,
       jsonl,parquet}` (one logical TICKIT-shaped dataset across all
       five formats, sourced from the owner's public dataset repos, see
       `examples/README.md`) plus `claimwise-*.csv` for later bolts
-- [ ] Format detection (extension + content sniffing); CSV/TSV/JSON/
-      JSONL/Parquet readers behind one trait
-- [ ] `inspect`: schema, counts, types, nullability, Parquet row
-      groups/compression, masked samples; stdin via `-` with `--type`
-- [ ] Golden tests for JSON envelopes on all five `customers.*`
-      fixtures; exit code 3/4 integration tests
+- [x] Format detection (extension + `--type` override + content
+      sniffing: Parquet magic, JSON array/object heuristics, comma-vs-
+      tab frequency with tie → `UnsupportedInput`, see design.md
+      Correction); CSV/TSV/JSON/JSONL/Parquet readers behind one
+      `DatasetReader` trait
+- [x] `inspect`: schema, counts, types (Boolean→Integer→Float→String
+      narrowing for delimited/JSON; metadata-derived for Parquet),
+      nullability, Parquet row groups/compression (from metadata, no
+      full scan), masked sample rows (heuristic sensitive-column list
+      in `datagov-core::sensitivity`, pre-dating Bolt 5's recognizer
+      engine); stdin via `-` with `--type` (required — hard exit 2
+      otherwise)
+- [x] Golden tests for JSON envelopes on all five `customers.*`
+      fixtures (`run` block normalized); exit code 2/3/4 integration
+      tests
 
 ## Bolt 3 — `profile` + `query` (DataFusion)
 

@@ -118,9 +118,120 @@
     }
   },
   "definitions": {
+    "ColumnSchema": {
+      "description": "One column's inferred name, type, and nullability.",
+      "type": "object",
+      "required": [
+        "data_type",
+        "name",
+        "nullable"
+      ],
+      "properties": {
+        "data_type": {
+          "$ref": "#/definitions/DataType"
+        },
+        "name": {
+          "type": "string"
+        },
+        "nullable": {
+          "type": "boolean"
+        }
+      }
+    },
+    "DataType": {
+      "description": "The narrowest data type a reader inferred for a column. See the per-format narrowing rules in `datagov_data` for how each variant is chosen (e.g. CSV narrows Boolean → Integer → Float → String; JSON uses the JSON value's own type, with `Mixed` when non-null occurrences disagree).",
+      "oneOf": [
+        {
+          "type": "string",
+          "enum": [
+            "boolean",
+            "integer",
+            "float",
+            "string",
+            "object",
+            "array"
+          ]
+        },
+        {
+          "description": "Every occurrence of the column was null/absent — no type could be inferred.",
+          "type": "string",
+          "enum": [
+            "null"
+          ]
+        },
+        {
+          "description": "Non-null occurrences disagreed on type (JSON/JSONL only).",
+          "type": "string",
+          "enum": [
+            "mixed"
+          ]
+        }
+      ]
+    },
     "DatasetSection": {
-      "description": "Placeholder for the `dataset` section; populated starting Bolt 2.",
-      "type": "object"
+      "description": "The `dataset` section (PRD §10.1): populated by `datagov inspect` (and reused by `profile`/`report` in later bolts) with everything learned about an input dataset without necessarily doing a full scan (Parquet metadata in particular is read without scanning row data).",
+      "type": "object",
+      "required": [
+        "approx_memory_bytes",
+        "column_count",
+        "file_size_bytes",
+        "format",
+        "row_count",
+        "sample_rows",
+        "schema"
+      ],
+      "properties": {
+        "approx_memory_bytes": {
+          "description": "A real measurement from the same scan/metadata read used to populate the rest of this section — not a rough guess. See `datagov_data` reader docs for the exact per-format formula.",
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "column_count": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0.0
+        },
+        "file_size_bytes": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "format": {
+          "description": "Detected/declared format: `\"csv\"` | `\"tsv\"` | `\"json\"` | `\"jsonl\"` | `\"parquet\"`.",
+          "type": "string"
+        },
+        "parquet": {
+          "description": "`Some` only when `format == \"parquet\"`.",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ParquetInfo"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "row_count": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "sample_rows": {
+          "description": "The first `DEFAULT_SAMPLE_ROWS` records in source order, already masked (sensitive columns per `crate::sensitivity::is_heuristically_sensitive` are replaced with the `Masked` rendering) — safe to emit as-is on every output surface.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "schema": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ColumnSchema"
+          }
+        }
+      }
     },
     "EvidenceSection": {
       "description": "Placeholder for the `evidence` section; populated starting Bolt 5.",
@@ -152,6 +263,29 @@
       "description": "Placeholder for the `lineage` section; populated in a later change.",
       "type": "object"
     },
+    "ParquetInfo": {
+      "description": "Parquet-specific inspection detail (PRD §10.1: row groups, compression), read entirely from file metadata.",
+      "type": "object",
+      "required": [
+        "compression_codecs",
+        "row_groups"
+      ],
+      "properties": {
+        "compression_codecs": {
+          "description": "Distinct codec names (e.g. `\"SNAPPY\"`), sorted.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "row_groups": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RowGroupInfo"
+          }
+        }
+      }
+    },
     "PiiSection": {
       "description": "Placeholder for the `pii` section; populated starting Bolt 5.",
       "type": "object"
@@ -167,6 +301,35 @@
     "QualitySection": {
       "description": "Placeholder for the `quality` section; populated in a later change.",
       "type": "object"
+    },
+    "RowGroupInfo": {
+      "description": "Metadata for a single Parquet row group.",
+      "type": "object",
+      "required": [
+        "compressed_size_bytes",
+        "index",
+        "row_count",
+        "uncompressed_size_bytes"
+      ],
+      "properties": {
+        "compressed_size_bytes": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "index": {
+          "type": "integer",
+          "format": "uint",
+          "minimum": 0.0
+        },
+        "row_count": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "uncompressed_size_bytes": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
     },
     "Run": {
       "description": "Run metadata: identity, timing.",

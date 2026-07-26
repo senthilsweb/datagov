@@ -21,6 +21,9 @@ uuid = { version = "1", features = ["v7", "serde"] }
 time = { version = "0.3", features = ["formatting", "parsing", "serde"] }
 schemars = "0.8"
 sha2 = "0.10"
+csv = "1"
+parquet = { version = "59", default-features = false, features = ["snap", "json"] }
+comfy-table = "7"
 
 # dev dependencies
 assert_cmd = "2"

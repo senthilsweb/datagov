@@ -6,3 +6,11 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
+datagov-core = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+csv = { workspace = true }
+parquet = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }

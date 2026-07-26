@@ -4,16 +4,19 @@
 //!    `Summary`, `Status`, `Sections`) with `serde` + `schemars` derives,
 //!    matching the PRD §23 JSON shape exactly — `sections` is flattened
 //!    so `dataset`, `profile`, `pii`, … appear as top-level keys.
-//! 2. Defines one empty `#[non_exhaustive]` placeholder struct per PRD §23
-//!    domain key (`DatasetSection`, `ProfileSection`, `PiiSection`,
+//! 2. Defines the `dataset` section (PRD §10.1, populated starting
+//!    Bolt 2): `DatasetSection`, `ColumnSchema`, `DataType`,
+//!    `ParquetInfo`, `RowGroupInfo`.
+//! 3. Defines one empty `#[non_exhaustive]` placeholder struct per
+//!    remaining PRD §23 domain key (`ProfileSection`, `PiiSection`,
 //!    `QualitySection`, `SchemaSection`, `LineageSection`,
-//!    `PolicySection`, `EvidenceSection`); domain bolts flesh these out.
-//! 3. Provides `content_hash_sha256`, a SHA-256 file-hashing helper used
+//!    `PolicySection`, `EvidenceSection`); later bolts flesh these out.
+//! 4. Provides `content_hash_sha256`, a SHA-256 file-hashing helper used
 //!    from Bolt 2 onward to populate `Input::content_hash`.
-//! 4. Provides `ReportBuilder`, which starts the run clock on
+//! 5. Provides `ReportBuilder`, which starts the run clock on
 //!    construction, stamps `completed_at`/`duration_ms` on `build()`, and
 //!    defaults `Summary` to a clean success.
-//! 5. Ships a schema-drift test: the schema regenerated in-memory from
+//! 6. Ships a schema-drift test: the schema regenerated in-memory from
 //!    these types must match the committed
 //!    `docs/schema/report-v1.json` byte-for-byte.
 
@@ -145,10 +148,81 @@ macro_rules! empty_section {
     };
 }
 
-empty_section!(
-    /// Placeholder for the `dataset` section; populated starting Bolt 2.
-    DatasetSection
-);
+/// The `dataset` section (PRD §10.1): populated by `datagov inspect`
+/// (and reused by `profile`/`report` in later bolts) with everything
+/// learned about an input dataset without necessarily doing a full scan
+/// (Parquet metadata in particular is read without scanning row data).
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+pub struct DatasetSection {
+    /// Detected/declared format: `"csv"` | `"tsv"` | `"json"` | `"jsonl"`
+    /// | `"parquet"`.
+    pub format: String,
+    pub file_size_bytes: u64,
+    pub row_count: u64,
+    pub column_count: u32,
+    pub schema: Vec<ColumnSchema>,
+    /// A real measurement from the same scan/metadata read used to
+    /// populate the rest of this section — not a rough guess. See
+    /// `datagov_data` reader docs for the exact per-format formula.
+    pub approx_memory_bytes: u64,
+    /// `Some` only when `format == "parquet"`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub parquet: Option<ParquetInfo>,
+    /// The first `DEFAULT_SAMPLE_ROWS` records in source order, already
+    /// masked (sensitive columns per
+    /// `crate::sensitivity::is_heuristically_sensitive` are replaced with
+    /// the `Masked` rendering) — safe to emit as-is on every output
+    /// surface.
+    pub sample_rows: Vec<serde_json::Map<String, serde_json::Value>>,
+}
+
+/// One column's inferred name, type, and nullability.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+pub struct ColumnSchema {
+    pub name: String,
+    pub data_type: DataType,
+    pub nullable: bool,
+}
+
+/// The narrowest data type a reader inferred for a column. See the
+/// per-format narrowing rules in `datagov_data` for how each variant is
+/// chosen (e.g. CSV narrows Boolean → Integer → Float → String; JSON
+/// uses the JSON value's own type, with `Mixed` when non-null
+/// occurrences disagree).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "lowercase")]
+pub enum DataType {
+    Boolean,
+    Integer,
+    Float,
+    String,
+    Object,
+    Array,
+    /// Every occurrence of the column was null/absent — no type could be
+    /// inferred.
+    Null,
+    /// Non-null occurrences disagreed on type (JSON/JSONL only).
+    Mixed,
+}
+
+/// Parquet-specific inspection detail (PRD §10.1: row groups,
+/// compression), read entirely from file metadata.
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+pub struct ParquetInfo {
+    pub row_groups: Vec<RowGroupInfo>,
+    /// Distinct codec names (e.g. `"SNAPPY"`), sorted.
+    pub compression_codecs: Vec<String>,
+}
+
+/// Metadata for a single Parquet row group.
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+pub struct RowGroupInfo {
+    pub index: usize,
+    pub row_count: i64,
+    pub compressed_size_bytes: i64,
+    pub uncompressed_size_bytes: i64,
+}
+
 empty_section!(
     /// Placeholder for the `profile` section; populated starting Bolt 3.
     ProfileSection
@@ -325,8 +399,22 @@ mod tests {
 
     #[test]
     fn sections_flatten_populated_domain_as_top_level_key() {
+        let dataset = DatasetSection {
+            format: "csv".to_string(),
+            file_size_bytes: 10,
+            row_count: 1,
+            column_count: 1,
+            schema: vec![ColumnSchema {
+                name: "a".to_string(),
+                data_type: DataType::String,
+                nullable: false,
+            }],
+            approx_memory_bytes: 25,
+            parquet: None,
+            sample_rows: vec![],
+        };
         let sections = Sections {
-            dataset: Some(DatasetSection::default()),
+            dataset: Some(dataset),
             ..Default::default()
         };
         let report = ReportBuilder::new().sections(sections).build();

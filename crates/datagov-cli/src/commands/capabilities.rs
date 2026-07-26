@@ -1,10 +1,10 @@
 //! capabilities.rs — `datagov capabilities`: thin adapter, no business
 //! logic.
 //!
-//! 1. Reports the compiled command set (`version`, `capabilities`),
-//!    supported input formats (empty in Bolt 1 — honest, no format
-//!    readers exist yet), and enabled cargo features (none defined in
-//!    Bolt 1).
+//! 1. Reports the compiled command set (`version`, `capabilities`,
+//!    `inspect`), supported input formats (the five `datagov-data`
+//!    readers landed in Bolt 2), and enabled cargo features (none
+//!    defined yet).
 //! 2. Human rendering: a small table. `--output json`: the envelope with
 //!    the payload under `extensions.capabilities`.
 
@@ -13,8 +13,8 @@ use datagov_core::DatagovError;
 use datagov_core::report::ReportBuilder;
 use serde_json::json;
 
-const COMMANDS: &[&str] = &["version", "capabilities"];
-const FORMATS: &[&str] = &[];
+const COMMANDS: &[&str] = &["version", "capabilities", "inspect"];
+const FORMATS: &[&str] = &["csv", "tsv", "json", "jsonl", "parquet"];
 const FEATURES: &[&str] = &[];
 
 pub fn run(output: OutputFormat) -> Result<(), DatagovError> {

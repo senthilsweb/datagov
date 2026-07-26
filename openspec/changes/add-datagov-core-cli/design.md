@@ -69,6 +69,33 @@ with releases). Migrating to 1.x is a deliberate future change, not a
 silent dependency bump. Flagged by the implementation agent; accepted
 by the architect.
 
+**Correction (2026-07-26, Bolt 2 Construction):** Parquet sample rows
+are produced via the `parquet` crate's own `Row::to_json_value()`
+(feature `json`, added alongside `snap` in the workspace `Cargo.toml`)
+rather than a hand-written `RowAccessor` physical-type dispatch — it's
+the crate's supported JSON rendering, already the exact shape
+`sample_rows` needs, and avoids duplicating the schema/type mapping
+already derived from metadata. `RowAccessor` is still exercised
+directly in the CLI integration test's independent oracle for the
+masking assertion. Flagged by the implementation agent; accepted by
+the architect.
+
+**Correction (2026-07-26, Bolt 2 Construction):** content-sniffing's
+comma-vs-tab tie-break (including 0-vs-0, e.g. prose with neither) is
+"still undetermined" → `UnsupportedInput` (exit 4) — this is what
+correctly routes `examples/README.md` to the unsupported-format test
+rather than a silent CSV misclassification. The brief named the
+comparison but not the tie-break; this is the natural reading.
+Accepted by the architect.
+
+**Correction (2026-07-26, Bolt 2 Construction):** Parquet's
+`BYTE_ARRAY`/`FIXED_LEN_BYTE_ARRAY` physical types both map to
+`DataType::String` — Bolt 2's `DataType` enum has no binary/decimal/
+date variant. Correct for the committed fixture (all VARCHAR columns);
+not yet exercised against a decimal- or date-typed Parquet column.
+Revisit when a fixture with those types is introduced. Accepted by the
+architect.
+
 ## Fixtures and evals
 
 **Decision (2026-07-26, pre-Bolt-2 planning):** rather than a

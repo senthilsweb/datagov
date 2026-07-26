@@ -1,0 +1,238 @@
+{
+  "schema_version": "1.0",
+  "tool": {
+    "name": "datagov",
+    "version": "0.1.0"
+  },
+  "run": {
+    "id": "normalized",
+    "started_at": "normalized",
+    "completed_at": "normalized",
+    "duration_ms": 0
+  },
+  "input": {
+    "uri": "<uri>",
+    "format": "parquet",
+    "content_hash": "sha256:3ea6d2b29ef864a9a2e7fa50739f5de986b4a5e409fa9683129b2920ceaf20f4"
+  },
+  "summary": {
+    "status": "success",
+    "errors": 0,
+    "warnings": 0,
+    "info": 0
+  },
+  "dataset": {
+    "format": "parquet",
+    "file_size_bytes": 486135,
+    "row_count": 8682,
+    "column_count": 18,
+    "schema": [
+      {
+        "name": "userid",
+        "data_type": "integer",
+        "nullable": true
+      },
+      {
+        "name": "username",
+        "data_type": "string",
+        "nullable": true
+      },
+      {
+        "name": "firstname",
+        "data_type": "string",
+        "nullable": true
+      },
+      {
+        "name": "lastname",
+        "data_type": "string",
+        "nullable": true
+      },
+      {
+        "name": "city",
+        "data_type": "string",
+        "nullable": true
+      },
+      {
+        "name": "state",
+        "data_type": "string",
+        "nullable": true
+      },
+      {
+        "name": "email",
+        "data_type": "string",
+        "nullable": true
+      },
+      {
+        "name": "phone",
+        "data_type": "string",
+        "nullable": true
+      },
+      {
+        "name": "likesports",
+        "data_type": "boolean",
+        "nullable": true
+      },
+      {
+        "name": "liketheatre",
+        "data_type": "boolean",
+        "nullable": true
+      },
+      {
+        "name": "likeconcerts",
+        "data_type": "boolean",
+        "nullable": true
+      },
+      {
+        "name": "likejazz",
+        "data_type": "boolean",
+        "nullable": true
+      },
+      {
+        "name": "likeclassical",
+        "data_type": "boolean",
+        "nullable": true
+      },
+      {
+        "name": "likeopera",
+        "data_type": "boolean",
+        "nullable": true
+      },
+      {
+        "name": "likerock",
+        "data_type": "boolean",
+        "nullable": true
+      },
+      {
+        "name": "likevegas",
+        "data_type": "boolean",
+        "nullable": true
+      },
+      {
+        "name": "likebroadway",
+        "data_type": "boolean",
+        "nullable": true
+      },
+      {
+        "name": "likemusicals",
+        "data_type": "boolean",
+        "nullable": true
+      }
+    ],
+    "approx_memory_bytes": 1725544,
+    "parquet": {
+      "row_groups": [
+        {
+          "index": 0,
+          "row_count": 8682,
+          "compressed_size_bytes": 484415,
+          "uncompressed_size_bytes": 1725544
+        }
+      ],
+      "compression_codecs": [
+        "SNAPPY"
+      ]
+    },
+    "sample_rows": [
+      {
+        "city": "Kent",
+        "email": "Et\u2026du",
+        "firstname": "Rafael",
+        "lastname": "Taylor",
+        "likebroadway": false,
+        "likeclassical": true,
+        "likeconcerts": null,
+        "likejazz": false,
+        "likemusicals": true,
+        "likeopera": null,
+        "likerock": null,
+        "likesports": true,
+        "liketheatre": true,
+        "likevegas": true,
+        "phone": "(6\u202612",
+        "state": "WA",
+        "userid": 1,
+        "username": "JSG99FHE"
+      },
+      {
+        "city": "High Point",
+        "email": "am\u2026ca",
+        "firstname": "Lars",
+        "lastname": "Ratliff",
+        "likebroadway": null,
+        "likeclassical": null,
+        "likeconcerts": null,
+        "likejazz": false,
+        "likemusicals": true,
+        "likeopera": false,
+        "likerock": true,
+        "likesports": true,
+        "liketheatre": false,
+        "likevegas": null,
+        "phone": "(6\u202665",
+        "state": "ME",
+        "userid": 3,
+        "username": "IFT66TXU"
+      },
+      {
+        "city": "Port Orford",
+        "email": "In\u2026rg",
+        "firstname": "Mufutau",
+        "lastname": "Watkins",
+        "likebroadway": false,
+        "likeclassical": true,
+        "likeconcerts": null,
+        "likejazz": false,
+        "likemusicals": true,
+        "likeopera": null,
+        "likerock": null,
+        "likesports": true,
+        "liketheatre": false,
+        "likevegas": null,
+        "phone": "(7\u202670",
+        "state": "MD",
+        "userid": 9,
+        "username": "MSD36KVR"
+      },
+      {
+        "city": "Gadsden",
+        "email": "lo\u2026om",
+        "firstname": "Scarlett",
+        "lastname": "Mayer",
+        "likebroadway": true,
+        "likeclassical": null,
+        "likeconcerts": true,
+        "likejazz": null,
+        "likemusicals": null,
+        "likeopera": true,
+        "likerock": null,
+        "likesports": true,
+        "liketheatre": false,
+        "likevegas": null,
+        "phone": "(1\u202612",
+        "state": "GA",
+        "userid": 15,
+        "username": "OWU78MTR"
+      },
+      {
+        "city": "Ruston",
+        "email": "ma\u2026du",
+        "firstname": "Macy",
+        "lastname": "Dunlap",
+        "likebroadway": null,
+        "likeclassical": null,
+        "likeconcerts": null,
+        "likejazz": null,
+        "likemusicals": false,
+        "likeopera": false,
+        "likerock": true,
+        "likesports": true,
+        "liketheatre": true,
+        "likevegas": null,
+        "phone": "(7\u202616",
+        "state": "OH",
+        "userid": 32,
+        "username": "BFR93AMT"
+      }
+    ]
+  }
+}
