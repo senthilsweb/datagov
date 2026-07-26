@@ -49,16 +49,18 @@ smoke-tested). 30 tests green (23 unit + 7 integration).
       layer, override order, malformed YAML → exit 2)
 - [x] File-header convention applied; CI (fmt, clippy, test) green
 
-## Bolt 2 — `inspect` + fixtures
+## Bolt 2 — `inspect` + fixtures ✅ fixtures sourced (2026-07-26)
 
-- [ ] Synthetic fixture generator + committed `examples/customers.csv`
-      / `.parquet` (fictional identities only)
+- [x] Fixtures committed at `examples/` — `customers.{csv,tsv,json,
+      jsonl,parquet}` (one logical TICKIT-shaped dataset across all
+      five formats, sourced from the owner's public dataset repos, see
+      `examples/README.md`) plus `claimwise-*.csv` for later bolts
 - [ ] Format detection (extension + content sniffing); CSV/TSV/JSON/
       JSONL/Parquet readers behind one trait
 - [ ] `inspect`: schema, counts, types, nullability, Parquet row
       groups/compression, masked samples; stdin via `-` with `--type`
-- [ ] Golden tests for JSON envelopes on both fixtures; exit code 3/4
-      integration tests
+- [ ] Golden tests for JSON envelopes on all five `customers.*`
+      fixtures; exit code 3/4 integration tests
 
 ## Bolt 3 — `profile` + `query` (DataFusion)
 
